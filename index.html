@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+<title>Connect Four Project</title>
+
+<style>
+  html, body {
+    min-width: 100%;
+    min-height: 100%;
+    margin: 0px;
+    padding: 0px;
+    font-size: 2.5vw /* makes the root font size be relative to the viewport width */
+  }
+  body {
+    background: linear-gradient(180deg, hsl(186, 100%, 70%), hsl(211, 100%, 55%));
+  }
+  header {
+    border-bottom: 2px solid;
+  }
+  h1 {
+    font-size: 1rem; /* makes the font size be relative to the root font size */
+    text-align: center;
+    margin: 0px;
+    padding: 0.5em; /* this is relative to the current font size */
+  }
+  h2 {
+    font-size: 0.8rem;
+    text-align: center;
+    margin: 0px;
+    padding: 0.5em;
+  }
+
+  p {
+    font-size: 0.6rem;
+    text-align: left;
+    text-indent: 2em;
+    margin: 0px;
+    padding: 0.2em;
+  }
+  main {
+    /* background-color: hsla(0, 20%, 50%, 0.5); */
+    display: flex;
+    flex-direction: row; /* this assumes we are on a wide screen (pc) */
+    align-items: center;
+    justify-content: space-around;
+  }
+  .control-description {
+    border: 1px solid;
+    border-radius: 20px;
+    background-color: hsla(0, 0%, 90%, 0.7);
+    width: 35%;
+    margin: 5px;
+    box-shadow: 5px 10px 20px rgba(0,0,0,0.19), 2px 6px 6px rgba(0,0,0,0.23);
+    margin: 5px;
+  }
+
+  .back-clear {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    margin: 5px;
+  }
+
+  .button {
+    border: 1px solid;
+    border-width: 1px;
+    border-radius: 20px;
+    padding: 5px;
+    box-shadow: 2px 6px 6px rgba(0,0,0,0.23);
+    background-color: hsla(0, 0%, 90%, 0.7);
+    color: black;
+    width: fit-content;
+    font-size: 0.75rem;
+  }
+
+  .main-content-wrapper {
+    width: 45%; /*this only exists to modify flex: space-around; */
+    margin: 5px;
+  }
+
+  .main-content {
+    display: flex;
+    flex-direction: column;
+    width: fit-content;
+    height: 40vw;
+    margin: 0 auto 0 auto;
+  }
+
+  .chip-dropper {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-around;
+    height: 5vw;
+    margin: 0px auto 0px auto;
+  }
+
+  .drop-option {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: hsla(0, 50%, 50%); /* make saturation jump to 100 when we hover */
+    width: 4vw;
+    height: 4vw;
+    border-radius: 50%;
+    border: 1px solid;
+    font-size: 0.75rem;
+  }
+
+  .game-square {
+    border: 1px solid;
+    margin: 0px auto 0px auto;
+    box-shadow: 5px 10px 20px rgba(0,0,0,0.19), 2px 6px 6px rgba(0,0,0,0.23);
+  }
+
+  .game-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    grid-template-rows: repeat(6, 1fr);
+  }
+
+  .cell {
+    width: 5vw;
+    height: 5vw;
+    border-style: solid;
+    border-color: black;
+    border-width: 1px;
+  }
+
+  .position-evaluation {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 5vw;
+    font-size: 0.75rem;
+  }
+
+  footer {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    border-top: 2px solid;
+    border-width: 2px;
+    width: 100%;
+  }
+
+  .self-plug {
+    width: 30%;
+    margin: 10px;
+    padding: 0px;
+    font-size: 0.6rem;
+    color: black;
+  }
+</style>
+</head>
+
+<body>
+  <header>
+    <h1><u>Dante's Connect Four Project</u></h1>
+  </header>
+  
+  <main>
+    <div class="control-description">
+      <h2>How it Works</h2>
+      <p>In this game, red always plays first and yellow always plays second. Below the board, it says which color will win and in how many moves, assuming perfect play from both players. The numbers above each column indicates who will win if the current player places their chip in that slot.</p>
+      <p>A positive number indicates that red will win, a negative number indicates that yellow will win, and 0 indicates a draw. So +5 means that red will win in five turns, -4 means that yellow will win in four turns, and 0 is a draw (which always happens when the board is full).</p>
+      <div class="back-clear">
+        <div class="button" id="back-button">
+          Back
+        </div>
+        <div class="button" id="clear-button">
+          Clear
+        </div>
+      </div>
+    </div>
+    <div class="main-content-wrapper">
+      <div class="main-content">
+        <div class="chip-dropper">
+          <div class="drop-option" id="option-1">1</div>
+          <div class="drop-option" id="option-2">2</div>
+          <div class="drop-option" id="option-3">3</div>
+          <div class="drop-option" id="option-4">4</div>
+          <div class="drop-option" id="option-5">5</div>
+          <div class="drop-option" id="option-6">6</div>
+          <div class="drop-option" id="option-7">7</div>
+        </div>
+        <div class="game-square">
+          <div class="game-grid">
+            <img src="transparent_cell.png" class="cell" id="cell-1">
+            <img src="transparent_cell.png" class="cell" id="cell-2">
+            <img src="transparent_cell.png" class="cell" id="cell-3">
+            <img src="transparent_cell.png" class="cell" id="cell-4">
+            <img src="transparent_cell.png" class="cell" id="cell-5">
+            <img src="transparent_cell.png" class="cell" id="cell-6">
+            <img src="transparent_cell.png" class="cell" id="cell-7">
+            <img src="transparent_cell.png" class="cell" id="cell-8">
+            <img src="transparent_cell.png" class="cell" id="cell-9">
+            <img src="transparent_cell.png" class="cell" id="cell-10">
+            <img src="transparent_cell.png" class="cell" id="cell-11">
+            <img src="transparent_cell.png" class="cell" id="cell-12">
+            <img src="transparent_cell.png" class="cell" id="cell-13">
+            <img src="transparent_cell.png" class="cell" id="cell-14">
+            <img src="transparent_cell.png" class="cell" id="cell-15">
+            <img src="transparent_cell.png" class="cell" id="cell-16">
+            <img src="transparent_cell.png" class="cell" id="cell-17">
+            <img src="transparent_cell.png" class="cell" id="cell-18">
+            <img src="transparent_cell.png" class="cell" id="cell-19">
+            <img src="transparent_cell.png" class="cell" id="cell-20">
+            <img src="transparent_cell.png" class="cell" id="cell-21">
+            <img src="transparent_cell.png" class="cell" id="cell-22">
+            <img src="transparent_cell.png" class="cell" id="cell-23">
+            <img src="transparent_cell.png" class="cell" id="cell-24">
+            <img src="transparent_cell.png" class="cell" id="cell-25">
+            <img src="transparent_cell.png" class="cell" id="cell-26">
+            <img src="transparent_cell.png" class="cell" id="cell-27">
+            <img src="transparent_cell.png" class="cell" id="cell-28">
+            <img src="transparent_cell.png" class="cell" id="cell-29">
+            <img src="transparent_cell.png" class="cell" id="cell-30">
+            <img src="transparent_cell.png" class="cell" id="cell-31">
+            <img src="transparent_cell.png" class="cell" id="cell-32">
+            <img src="transparent_cell.png" class="cell" id="cell-33">
+            <img src="transparent_cell.png" class="cell" id="cell-34">
+            <img src="transparent_cell.png" class="cell" id="cell-35">
+            <img src="transparent_cell.png" class="cell" id="cell-36">
+            <img src="transparent_cell.png" class="cell" id="cell-37">
+            <img src="transparent_cell.png" class="cell" id="cell-38">
+            <img src="transparent_cell.png" class="cell" id="cell-39">
+            <img src="transparent_cell.png" class="cell" id="cell-40">
+            <img src="transparent_cell.png" class="cell" id="cell-41">
+            <img src="transparent_cell.png" class="cell" id="cell-42">
+          </div>
+        </div>
+        <div class="position-evaluation">
+          Someone is probably winning.
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="self-plug">dantecriscio@gmail.com</div>
+    <a href="https://www.linkedin.com/in/dantecriscio" target="_blank" class="self-plug" style=text-align:center>www.linkedin.com/in/dantecriscio</a>
+    <a href="https://github.com/dante0624" target="_blank" class="self-plug" style=text-align:right>https://github.com/dante0624</a>
+    
+  </footer>
+</body>
+</html>
