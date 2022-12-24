@@ -90,10 +90,15 @@ public class Position {
         return movesPlayed;
     }
 
-    // Constructor
+    // Constructors
     public Position() {
         position = 0L;
         mask = 0L;
         movesPlayed = 0;
+    }
+    public Position(long initialPosition, long initialMask, int initialMovesPlayed) {
+        position = initialPosition;
+        mask = initialMask;
+        movesPlayed = initialMovesPlayed;
     }
 }
