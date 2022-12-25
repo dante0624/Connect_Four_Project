@@ -49,6 +49,17 @@ public class Position {
     }
 
     // Public interface
+    // Simple getters
+    public long getPosition(){
+        return position;
+    }
+    public long getMask() {
+        return mask;
+    }
+    public int getMovesPlayed() {
+        return movesPlayed;
+    }
+
     public long getKey(){
         // May remove the +bottom part, because this is constant
         // So just position + mask is also a valid, unique key it just looks less nice
@@ -85,11 +96,6 @@ public class Position {
         return alignment(pos);
     }
 
-    // Returns the number of moves played since the beginning of the game
-    public int numMoves() {
-        return movesPlayed;
-    }
-
     // Constructors
     public Position() {
         position = 0L;
@@ -100,5 +106,11 @@ public class Position {
         position = initialPosition;
         mask = initialMask;
         movesPlayed = initialMovesPlayed;
+    }
+    // This one makes a copy of a position
+    public Position(Position otherPosition) {
+        position = otherPosition.getPosition();
+        mask = otherPosition.getMask();
+        movesPlayed = otherPosition.getMovesPlayed();
     }
 }

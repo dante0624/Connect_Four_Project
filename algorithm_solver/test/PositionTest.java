@@ -33,15 +33,27 @@ class PositionTest {
 
     // Some simple "Getters First"
     @Test
-    void testGetKey() {
-        assertEquals(0x40810204081L, blankPosition.getKey());
-        assertEquals(0x51277329E09L, complexPosition.getKey());
+    void testGetPosition() {
+        assertEquals(0L, blankPosition.getPosition());
+        assertEquals(0x1073228E01L, complexPosition.getPosition());
     }
 
     @Test
-    void testNumMoves() {
-        assertEquals(0, blankPosition.numMoves());
-        assertEquals(29, complexPosition.numMoves());
+    void testGetMask() {
+        assertEquals(0L, blankPosition.getMask());
+        assertEquals(0xF9F3EFCF87L, complexPosition.getMask());
+    }
+
+    @Test
+    void testGetMovesPlayed() {
+        assertEquals(0, blankPosition.getMovesPlayed());
+        assertEquals(29, complexPosition.getMovesPlayed());
+    }
+
+    @Test
+    void testGetKey() {
+        assertEquals(0x40810204081L, blankPosition.getKey());
+        assertEquals(0x51277329E09L, complexPosition.getKey());
     }
 
     // Testing Can Play
@@ -87,5 +99,14 @@ class PositionTest {
     void testPlay() {
         complexPosition.play(3);
         assertTrue(complexPosition.isWinningMove(5));
+    }
+
+    // Tests the constructor which makes a copy of another position
+    @Test
+    void testCopy() {
+        Position copy = new Position(complexPosition);
+        assertEquals(complexPosition.getPosition(), copy.getPosition());
+        assertEquals(complexPosition.getMask(), copy.getMask());
+        assertEquals(complexPosition.getMovesPlayed(), copy.getMovesPlayed());
     }
 }
