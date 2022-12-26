@@ -1,5 +1,5 @@
 public class Solver {
-    private int negamax(Position p, int alpha, int beta) {
+    private static int negamax(Position p, int alpha, int beta) {
         // First check if the game is drawn
         if (p.getMovesPlayed() == Position.WIDTH * Position.HEIGHT) {
             return 0;
@@ -42,7 +42,7 @@ public class Solver {
         return alpha;
     }
 
-    public int solve(Position p) {
+    public static int solve(Position p) {
         // Use negamax when applicable, with a starting window of [-inf, inf]
         return negamax(
                 p,
