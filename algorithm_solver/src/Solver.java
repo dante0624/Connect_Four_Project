@@ -1,5 +1,5 @@
 public class Solver {
-    private static int negamax(Position p, int alpha, int beta) {
+    private static int negamax(Position p, int alpha, int beta, int [] columnOrder) {
         // First check if the game is drawn
         if (p.getMovesPlayed() == Position.WIDTH * Position.HEIGHT) {
             return 0;
@@ -23,13 +23,13 @@ public class Solver {
         }
 
         // The main recursion
-        for (int col = 0; col < Position.WIDTH; col++) {
+        for (int col : columnOrder) {
             if (p.canPlay(col)) {
                 // Make a copy of the position, then play a move, and look at from other player's POV
                 Position p2 = new Position(p);
                 p2.play(col);
 
-                int score = -negamax(p2, -beta, -alpha); // The awesome recursion
+                int score = -negamax(p2, -beta, -alpha, columnOrder); // The awesome recursion
                 if (score >= beta) { // This is a pruning case
                     return score;
                 }
@@ -43,11 +43,19 @@ public class Solver {
     }
 
     public static int solve(Position p) {
+        // This tells us which order to explore the columns in
+        int[] columnOrder = new int[Position.WIDTH];
+        for (int i = 0; i < Position.WIDTH; i++) {
+            // Start in the middle and move out
+            columnOrder[i] = Position.WIDTH/2 + (1-2*(i%2)) * (i+1)/2;
+        }
+
         // Use negamax when applicable, with a starting window of [-inf, inf]
         return negamax(
                 p,
                 -Position.WIDTH*Position.HEIGHT/2,
-                Position.WIDTH*Position.HEIGHT/2
+                Position.WIDTH*Position.HEIGHT/2,
+                columnOrder
         );
     }
 }
