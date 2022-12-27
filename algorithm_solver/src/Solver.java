@@ -74,13 +74,46 @@ public class Solver {
         // Create a new Transposition table
         TranspositionTable table = new TranspositionTable();
 
-        // Use negamax when applicable, with a starting window of [-inf, inf]
-        return negamax(
-                p,
-                -Position.WIDTH*Position.HEIGHT/2,
-                Position.WIDTH*Position.HEIGHT/2,
-                columnOrder,
-                table
-        );
+        // Use Negamax, iterative deepening, and null window search
+        // Comparable to using binary search, where we are searching for the true position score
+        int min = -(Position.WIDTH*Position.HEIGHT - p.getMovesPlayed()) / 2;
+        int max = (Position.WIDTH*Position.HEIGHT - p.getMovesPlayed() + 1) / 2;
+
+        while (min < max) {
+            // This is the true middle value between max and min
+            // We do this instead of (min + max) / 2, because we want the floor division to always
+            // round down to -inf, instead of towards 0.
+            // This is relevant if say min = -2, and max = -1.
+            int middle = min + (max - min) / 2;
+
+            // Problem is, if max = 21 and min = -21, then middle = 0
+            // We don't want to use this value in Negamax, because it will involve looking deeply
+            // We want to find quick winning paths or quick loosing paths
+            // So, if this happens, we set middle = max /2, or middle = min / 2
+            if (middle <= 0 && min / 2 < middle) {
+                middle = min / 2;
+            }
+            else if (middle >= 0 && max / 2 > middle) {
+                middle = max / 2;
+            }
+
+            int result = negamax(
+                    p,
+                    middle,
+                    middle+1,
+                    columnOrder,
+                    table
+            );
+
+            // This result tells us if the true position score is <= or >= middle
+            if (result <= middle) {
+                max = result;
+            }
+            else {
+                min = result;
+            }
+        }
+        // Loop ends when min = max = true score.
+        return min;
     }
 }

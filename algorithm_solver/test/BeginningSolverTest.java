@@ -19,7 +19,7 @@ public class BeginningSolverTest {
     final static String rootDir = "/Users/dante/OneDrive/Desktop/Connect_Four_Project/algorithm_solver";
     final static String resourcesFolder = "testResources";
     final static String testFile = "beginningSolverTests.txt";
-    final static int numTests = 3;
+    final static int numTests = 7;
 
 
     Position position;
