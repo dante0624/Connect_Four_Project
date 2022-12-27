@@ -52,8 +52,8 @@ class PositionTest {
 
     @Test
     void testGetKey() {
-        assertEquals(0x40810204081L, blankPosition.getKey());
-        assertEquals(0x51277329E09L, complexPosition.getKey());
+        assertEquals(0L, blankPosition.getKey());
+        assertEquals(0x10A67125D88L, complexPosition.getKey());
     }
 
     // Testing Can Play

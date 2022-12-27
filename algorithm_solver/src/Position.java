@@ -5,7 +5,8 @@ public class Position {
     // Constants of the Board
     public static final int WIDTH = 7;
     public static final int HEIGHT = 6;
-    public static final long bottom = 0x40810204081L;
+    public static final int MIN_SCORE = -(WIDTH*HEIGHT)/2 + 3;
+    public static final int MAX_SCORE = (WIDTH*HEIGHT+1)/2 - 3;
 
     // Private attributes
     private long position;
@@ -61,9 +62,8 @@ public class Position {
     }
 
     public long getKey(){
-        // May remove the +bottom part, because this is constant
-        // So just position + mask is also a valid, unique key it just looks less nice
-        return position + mask + bottom;
+        // Just position + mask is  a valid, unique key
+        return position + mask;
     }
 
     // Returns true iff it is legal to play in the indicated column number
