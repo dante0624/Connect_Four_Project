@@ -28,7 +28,8 @@ class PositionTest {
     // Tests that a position will fit into 63 (unsigned) long bits
     @Test
     void testBitboardSize() {
-        assertTrue(Position.WIDTH * (Position.HEIGHT + 1) <= 63);
+        // These needs to be true so that the position keys can go nicely into the transposition table
+        assertTrue(Position.WIDTH * (Position.HEIGHT + 1) <= 56);
     }
 
     // Some simple "Getters First"

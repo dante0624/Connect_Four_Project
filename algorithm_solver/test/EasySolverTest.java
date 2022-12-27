@@ -4,10 +4,7 @@ import java.io.File;
 import java.nio.file.Path;
 import java.io.FileNotFoundException;
 
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.RepeatedTest;
+import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 // We have 5 asserts we can use now
@@ -17,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.*;
 // assertNotNull
 // assertNull
 
-public class SolverTest {
+public class EasySolverTest {
     // Global information about this test
     final static String rootDir = "/Users/dante/OneDrive/Desktop/Connect_Four_Project/algorithm_solver";
     final static String resourcesFolder = "testResources";
