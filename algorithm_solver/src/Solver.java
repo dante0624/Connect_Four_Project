@@ -1,4 +1,16 @@
 public class Solver {
+
+    // Evaluates the score a position using alpha beta, algorithm
+    // Assumptions:
+        // alpha < beta, this is score window
+        // No one has already won the game (needs to be checked beforehand)
+        // The current player cannot simply win in one move (is checked
+        //  beforehand by public method "solve")
+
+    // Return Values:
+        // if actual score of position <= alpha, then actual score <= return value <= alpha
+        // if actual score of position >= beta, then beta <= return value <= actual score
+        // if alpha <= actual score <= beta, then return value = actual score
     private static int negamax(
             Position p,
             int alpha,
@@ -6,19 +18,27 @@ public class Solver {
             int [] columnOrder,
             TranspositionTable table
     ) {
-        // if actual score of position <= alpha, then actual score <= return value <= alpha
-        // if actual score of position >= beta, then beta <= return value <= actual score
-        // if alpha <= actual score <= beta, then return value = actual score
-
         // First check if the game is drawn
         if (p.getMovesPlayed() == Position.WIDTH * Position.HEIGHT) {
             return 0;
         }
 
-        // Next, check if we can win on the very next move
-        for (int col = 0; col < Position.WIDTH; col++) {
-            if (p.canPlay(col) && p.isWinningMove(col)) {
-                return (Position.WIDTH * Position.HEIGHT + 1 - p.getMovesPlayed()) / 2;
+        // Consider all legal moves which don't let the opponent immediately win
+        long nonLosing = p.possibleNonLosingMoves();
+
+        if (nonLosing == 0L) { // The opponent can immediately win next move, no matter what we do
+            return -(Position.WIDTH * Position.HEIGHT - p.getMovesPlayed()) / 2;
+        }
+
+        // Opponent cannot win on their next move, consider the next worst case
+        // This is where, no matter what we do, they will win in 4 moves (us, them, us, them)
+        int min = -(Position.WIDTH * Position.HEIGHT - 2 - p.getMovesPlayed()) / 2;
+
+        // Compare alpha to this minimum
+        if (alpha < min) {
+            alpha = min; // Now need to have a lower bound that can't ever happen anyway
+            if (alpha >= beta) { // prune if the [alpha, beta] window is null
+                return alpha;
             }
         }
 
@@ -42,7 +62,8 @@ public class Solver {
 
         // The main recursion
         for (int col : columnOrder) {
-            if (p.canPlay(col)) {
+            // If we can both legally play this move, and it does not immediately lose
+            if ((nonLosing & Position.colMask(col)) != 0) {
                 // Make a copy of the position, then play a move, and look at from other player's POV
                 Position p2 = new Position(p);
                 p2.play(col);
@@ -64,6 +85,11 @@ public class Solver {
     }
 
     public static int solve(Position p) {
+        // Check if we can win in one move on this turn, as Negamax will now assume that we cannot
+        if (p.canWinNext()) {
+            return (Position.WIDTH * Position.HEIGHT + 1 - p.getMovesPlayed()) / 2;
+        }
+
         // This tells us which order to explore the columns in
         int[] columnOrder = new int[Position.WIDTH];
         for (int i = 0; i < Position.WIDTH; i++) {

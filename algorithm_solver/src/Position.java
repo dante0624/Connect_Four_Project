@@ -8,26 +8,107 @@ public class Position {
     public static final int MIN_SCORE = -(WIDTH*HEIGHT)/2 + 3;
     public static final int MAX_SCORE = (WIDTH*HEIGHT+1)/2 - 3;
 
+    // This is a bitmap with 1's in the bottom of each row
+    // Need to update manually if we change WIDTH or HEIGHT
+    private static final long BOTTOM_MASK = 0x40810204081L;
+
+    // Bitmap with all 1's in each playable square
+    private static final long BOARD_MASK = BOTTOM_MASK * ((1L << HEIGHT) - 1);
+
+
+    // Static methods for generating masks based on a column
+    // Returns a long mask for the bottom cell of a column
+    private static long bottomMask(int col) {
+        return 1L << col*(HEIGHT+1);
+    }
+
+    // Returns a long mask for the top (playable) cell of a column
+    private static long topMask(int col) {
+        return 1L << (HEIGHT - 1) << col*(HEIGHT+1);
+    }
+
+    // Returns a long mask for the entire (playable) column
+    public static long colMask(int col) {
+        return ((1L << HEIGHT) - 1L) << col*(HEIGHT+1);
+    }
+
     // Private attributes
     private long position;
     private long mask;
     private int movesPlayed;
 
     // Private interface
-
-    // Returns a long mask for the bottom cell of a column
-    private long bottomMask(int col) {
-        return 1L << col*(HEIGHT+1);
+    // Returns a bitmap that has 1's everywhere the current player can legally play
+    // Either a single 1 per column, or no 1's in a full column
+    private long possible() {
+        return (mask + BOTTOM_MASK) & BOARD_MASK;
     }
 
-    // Returns a long mask for the top (playable) cell of a column
-    private long topMask(int col) {
-        return 1L << (HEIGHT - 1) << col*(HEIGHT+1);
+    // Returns a bitmap that has 1's everywhere that we can currently win
+    // This means all squares where there is currently no chip, but a chip there creates connect 4
+    // This square may be "floating" (meaning if we play that column the chip will fall lower)
+    private static long computeWinningPosition(long position, long mask) {
+        // Vertical
+        long winning = (position << 1) & (position << 2) & (position << 3);
+
+        // Horizontal
+        // We will redefine pair many times, right now it means there are a pair of 1's to the left
+        long pair = (position << (HEIGHT+1)) & (position << 2*(HEIGHT+1));
+
+        // Compute three to the left, then two left and one right
+        winning |= pair & (position << 3*(HEIGHT+1));
+        winning |= pair & (position >> (HEIGHT+1));
+
+        // Now, pair means there are a pair of 1's to the right
+        pair = (position >> (HEIGHT+1)) & (position >> 2*(HEIGHT+1));
+
+        // Compute three to the right, then two right and one left
+        winning |= pair & (position >> 3*(HEIGHT+1));
+        winning |= pair & (position << (HEIGHT+1));
+
+        // Diagonal 1
+        // Now, pair means there are a pair of 1's up-left
+        pair = (position << HEIGHT) & (position << 2*HEIGHT);
+
+        // Compute 3 up-left, then two up-left and one down-right
+        winning |= pair & (position << 3*HEIGHT);
+        winning |= pair & (position >> HEIGHT);
+
+        // Now, pair means there are a pair of 1's down-right
+        pair = (position >> HEIGHT) & (position >> 2*HEIGHT);
+
+        // Compute 3 down-right, then two down-right and one up-left
+        winning |= pair & (position >> 3*HEIGHT);
+        winning |= pair & (position << HEIGHT);
+
+
+        //diagonal 2
+        // Now, pair means there are a pair of 1's down-left
+        pair = (position << (HEIGHT+2)) & (position << 2*(HEIGHT+2));
+
+        // Compute three down-left, then two down-left and one up-right
+        winning |= pair & (position << 3*(HEIGHT+2));
+        winning |= pair & (position >> (HEIGHT+2));
+
+        // Now, pair means there are a pair of 1's up-right
+        pair = (position >> (HEIGHT+2)) & (position >> 2*(HEIGHT+2));
+
+        // Compute three up-right, then two up-right and one down-left
+        winning |= pair & (position >> 3*(HEIGHT+2));
+        winning |= pair & (position << (HEIGHT+2));
+
+        // Need to be a winning position, and there need to not already be a chip there
+        return winning & (BOARD_MASK ^ mask);
     }
 
-    // Returns a long mask for the entire (playable) column
-    private long colMask(int col) {
-        return ((1L << HEIGHT) - 1L) << col*(HEIGHT+1);
+    // Return a bitmap that has 1's everywhere that the opponent can currently win
+    // Simply called "computeWinningPosition" with the 1's and 0's swapped
+    private long opponentWinningPosition() {
+        return computeWinningPosition(position ^ mask, mask);
+    }
+    // Same thing but for the current player
+    private long winningPosition(){
+        return computeWinningPosition(position, mask);
     }
 
     // Returns true iff the current player has "connect 4" already
@@ -36,11 +117,11 @@ public class Position {
         long pairs = pos & (pos >> (HEIGHT + 1)); //pairs has a 1 for all horizontal "connect 2"
         if ((pairs & (pairs >> (2*(HEIGHT + 1)))) != 0) {return true;}
 
-        // Diagonal 1
+        // Diagonal 1, up-left to down-right
         pairs = pos & (pos >> HEIGHT);
         if ((pairs & (pairs >> (2 * HEIGHT))) != 0) {return true;}
 
-        // Diagonal 2
+        // Diagonal 2, down-left to up-right
         pairs = pos & (pos >> (HEIGHT + 2));
         if ((pairs & (pairs >> (2 * (HEIGHT + 2)))) != 0) {return true;}
 
@@ -72,6 +153,7 @@ public class Position {
     }
 
     // Actually places a token in the respective column
+    // Should never be called on a non-playable (full) column
     public void play(int col) {
         // First, switch the bits of current player and opposing player
         position ^= mask;
@@ -94,6 +176,39 @@ public class Position {
         pos |= (mask + bottomMask(col)) & colMask(col);
 
         return alignment(pos);
+    }
+
+    // Return true if the currentPlayer can win on their current move
+    public boolean canWinNext() {
+        return (winningPosition() & possible()) != 0;
+    }
+
+    // Returns a bitmap of all the possible next moves that do not lose in one turn
+    // A losing move is a move leaving the possibility for the opponent to win directly.
+    // This function will not work correctly if you can win on this turn (because then that is optimal)
+    public long possibleNonLosingMoves() {
+        // At most a single 1 per column, containing all legally playable moves
+        long possibleMoves = possible();
+
+        // Has 1's everywhere that the opponent can create connect 4 (including "floating" squares)
+        long opponentWin = opponentWinningPosition();
+
+        // Moves are forced because we can play them right now, and the opponent can also win there
+        long forcedMoves = possibleMoves & opponentWin;
+
+        if (forcedMoves != 0) {
+            // This indicates that there are multiple forced moves, so we lose
+            if ((forcedMoves & (forcedMoves - 1)) != 0) {
+                return 0L;
+            }
+            possibleMoves = forcedMoves;
+        }
+
+        // At this point, possibleMoves is one of two cases:
+        // Case 1: There are no forced moves, so possibleMoves is just all playable columns
+        // Case 2: There is a single forced move, so possibleMoves is that one move
+        // We now want to remove any moves which "build up" and reveal a new winning move to the opponent
+        return possibleMoves & ~(opponentWin >> 1);
     }
 
     // Constructors
