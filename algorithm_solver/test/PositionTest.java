@@ -14,15 +14,20 @@ import static org.junit.jupiter.api.Assertions.*;
 class PositionTest {
     Position blankPosition;
     Position complexPosition;
+    Position vertical;
+    Position horizontal;
+
+    Position diagonal1;
+    Position diagonal2;
 
     @BeforeEach
     void setUp() {
         blankPosition = new Position();
-        complexPosition = new Position(
-                0x1073228E01L,
-                0xF9F3EFCF87L,
-                29
-        );
+        complexPosition = new Position(0x1073228E01L, 0xF9F3EFCF87L, 29);
+        vertical = new Position(0x7L, 0x387L, 6);
+        horizontal = new Position(0x10204000L, 0x3060C000L, 6);
+        diagonal1 = new Position(0x20A28500L, 0x30E3C781L, 14);
+        diagonal2 = new Position(0x50A0A08000L, 0x478F0E0C000L, 14);
     }
 
     // Tests that a position will fit into 63 (unsigned) long bits
@@ -30,6 +35,13 @@ class PositionTest {
     void testBitboardSize() {
         // These needs to be true so that the position keys can go nicely into the transposition table
         assertTrue(Position.WIDTH * (Position.HEIGHT + 1) <= 56);
+    }
+
+    // Test the public static method
+    @Test
+    void testColMask() {
+        assertEquals(0x3FL, Position.colMask(0));
+        assertEquals(0x7E00000L, Position.colMask(3));
     }
 
     // Some simple "Getters First"
@@ -101,6 +113,100 @@ class PositionTest {
         complexPosition.play(3);
         assertTrue(complexPosition.isWinningMove(5));
     }
+
+    // Test canWinNext in each possible way
+    @Test
+    void testCanWinNextVertical() {
+        assertTrue(vertical.canWinNext());
+
+        // block off the winning columns
+        vertical.play(1);
+        vertical.play(0);
+        assertFalse(vertical.canWinNext());
+    }
+
+    @Test
+    void testCanWinNextHorizontal() {
+        assertTrue(horizontal.canWinNext());
+
+        // block off one winning column
+        horizontal.play(3);
+        horizontal.play(1);
+        assertTrue(horizontal.canWinNext());
+
+        // block off the other
+        horizontal.play(1);
+        horizontal.play(5);
+        assertFalse(horizontal.canWinNext());
+
+    }
+
+    @Test
+    void testCanWinNextD1() {
+        assertTrue(diagonal1.canWinNext());
+
+        // block off one winning column
+        diagonal1.play(0);
+        diagonal1.play(1);
+        assertTrue(diagonal1.canWinNext());
+
+        // block off the other
+        diagonal1.play(6);
+        diagonal1.play(5);
+        assertFalse(diagonal1.canWinNext());
+    }
+
+    @Test
+    void testCanWinNextD2() {
+        assertTrue(diagonal2.canWinNext());
+
+        // block off one winning column
+        diagonal2.play(6);
+        diagonal2.play(5);
+        assertTrue(diagonal2.canWinNext());
+
+        // block off the other
+        diagonal2.play(0);
+        diagonal2.play(1);
+        assertFalse(diagonal2.canWinNext());
+    }
+
+    // Test possible NonLosing Moves in several ways
+    @Test
+    void testPossibleNonLosingMoves() {
+        // Every Move is playable
+        assertEquals(0x40810204081L, blankPosition.possibleNonLosingMoves());
+
+        // The playable moves are simply non-full columns
+        complexPosition.play(5);
+        complexPosition.play(6);
+        assertEquals(0x80204001008L, complexPosition.possibleNonLosingMoves());
+
+        // The only playable move blocks an opponent's winning move
+        vertical.play(1);
+        assertEquals(0x8L, vertical.possibleNonLosingMoves());
+
+        // Opponent can win in two spots, so we are done
+        horizontal.play(0);
+        assertEquals(0x0L, horizontal.possibleNonLosingMoves());
+
+        // Do not build under an opponent and let them win
+        horizontal.play(1);
+        horizontal.play(1);
+        horizontal.play(5);
+        horizontal.play(5);
+        horizontal.play(3);
+        assertEquals(0x42001000202L, horizontal.possibleNonLosingMoves());
+
+        // You play a move to block a direct win, but that builds under a different win
+        horizontal.play(6);
+        horizontal.play(2);
+        horizontal.play(6);
+        horizontal.play(1);
+        assertEquals(0x0L, horizontal.possibleNonLosingMoves());
+
+    }
+
 
     // Tests the constructor which makes a copy of another position
     @Test
