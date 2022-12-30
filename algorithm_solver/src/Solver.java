@@ -60,21 +60,32 @@ public class Solver {
             }
         }
 
-        // The main recursion
-        for (int col : columnOrder) {
-            // If we can both legally play this move, and it does not immediately lose
-            if ((nonLosing & Position.colMask(col)) != 0) {
-                // Make a copy of the position, then play a move, and look at from other player's POV
-                Position p2 = new Position(p);
-                p2.play(col);
+        // Prepare for the main recursion with a move sorter
+        MoveSorter moveSorter = new MoveSorter();
 
-                int score = -negamax(p2, -beta, -alpha, columnOrder, table); // The awesome recursion
-                if (score >= beta) { // This is a pruning case
-                    return score; // We are returning a score >= beta
-                }
-                if (score > alpha) { // alpha is now going to function as a running best
-                    alpha = score;
-                }
+        // Iterate through each column in columnOrder in reverse order, adding to the sorter
+        // We go through in reverse order because MoveSorter is a stack in the case of ties
+        // We also only add moves that are legally playable, and non-losing
+        for (int i = Position.WIDTH - 1; i >= 0; i--) {
+            long move = nonLosing & Position.colMask(columnOrder[i]);
+            if (move != 0L) {
+                moveSorter.add(move, p.moveScore(move));
+            }
+        }
+
+        // Iterate through each move in the MoveSorter
+        // This is the main recursion
+        for (long move = moveSorter.getNext(); move != 0L; move = moveSorter.getNext()) {
+            // Make a copy of the position, then play a move, and look at from other player's POV
+            Position p2 = new Position(p);
+            p2.playMove(move);
+
+            int score = -negamax(p2, -beta, -alpha, columnOrder, table); // The awesome recursion
+            if (score >= beta) { // This is a pruning case
+                return score; // We are returning a score >= beta
+            }
+            if (score > alpha) { // alpha is now going to function as a running best
+                alpha = score;
             }
         }
         // This alpha is now either the best of all children nodes (none were >= beta)

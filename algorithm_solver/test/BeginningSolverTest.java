@@ -54,7 +54,7 @@ public class BeginningSolverTest {
         // Play all the column moves
         for (int i = 0; i < columns.length(); i++) {
             int col = Integer.parseInt(columns.substring(i, i+1));
-            position.play(col);
+            position.playCol(col);
         }
 
         assertEquals(evalExpected, Solver.solve(position));

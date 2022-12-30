@@ -32,6 +32,16 @@ public class Position {
         return ((1L << HEIGHT) - 1L) << col*(HEIGHT+1);
     }
 
+    // Returns the number of 1's in a 64 bit, long number in binary.
+    private static int popcount(long num) {
+        int count;
+        for (count = 0; num != 0; count++) {
+            num &= num - 1;
+        }
+        return count;
+    }
+
+
     // Private attributes
     private long position;
     private long mask;
@@ -154,13 +164,27 @@ public class Position {
 
     // Actually places a token in the respective column
     // Should never be called on a non-playable (full) column
-    public void play(int col) {
+    public void playCol(int col) {
         // First, switch the bits of current player and opposing player
         position ^= mask;
 
         // Move up the mask by one in the column, but do not change position
         // This has an effect of adding a 0 to the key, which we want because after playing the "colors" swap
         mask |= mask + bottomMask(col);
+
+        // Increment the move counter
+        movesPlayed++;
+    }
+
+    // move is a bitmap with a single 1 where you want the new token to be placed
+    // Must check beforehand that this move is valid (not floating or taken)
+    public void playMove(long move) {
+        // First, switch the bits of current player and opposing player
+        position ^= mask;
+
+        // Add the move to the mask, but not to the position
+        // This has an effect of adding a 0 to the key, which we want because after playing the "colors" swap
+        mask |= move;
 
         // Increment the move counter
         movesPlayed++;
@@ -209,6 +233,13 @@ public class Position {
         // Case 2: There is a single forced move, so possibleMoves is that one move
         // We now want to remove any moves which "build up" and reveal a new winning move to the opponent
         return possibleMoves & ~(opponentWin >> 1);
+    }
+
+    // Returns a score of a given move
+    // The move is assumed to be a bitmap with a single 1 for the new chip
+    // The score is the number of total alignment possibilities, after this new chip is played
+    int moveScore(long move) {
+        return popcount(computeWinningPosition(move | position, mask));
     }
 
     // Constructors
