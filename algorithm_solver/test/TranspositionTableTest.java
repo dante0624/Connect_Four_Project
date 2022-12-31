@@ -38,8 +38,8 @@ public class TranspositionTableTest {
         assertEquals(1, table.get(0xF9F3EFCF87L));
 
         // This should cause a collision
-        table.put(0xF8F3EFCF87L, 2);
-        assertEquals(2, table.get(0xF8F3EFCF87L));
+        table.put(0xF9F36FCF7EL, 2);
+        assertEquals(2, table.get(0xF9F36FCF7EL));
 
         // Assert that if we look for the old value, we get 0 because it was erased
         assertEquals(0, table.get(0xF9F3EFCF87L));

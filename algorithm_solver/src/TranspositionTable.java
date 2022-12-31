@@ -11,60 +11,54 @@
 import java.util.Arrays;
 
 public class TranspositionTable {
-    // Globals about the table
-    public static final int evalBits = 8; // Each entry has its lower bits represent the position evaluation
-    public static final int tableSize = 26; // Implied is 2 ^ tableSize number of bytes
-    public static final int entrySize = 3; // Implied that it is 2 ^ entrySize, bytes per entry
-    public static final int numEntries = tableSize - entrySize; // 2 ^ numEntries is the real number of entries
+    // Global about the table
+    // Wanted 2 ^ 23 to be the real number of entries
+    // Each entry is 5 bytes (4 key and 1 eval), so this would lead to a 40MB table.
+    // Needed to add 9 entries more entries, so numEntries is a prime number
+    // In practice, could have just added 1 so that it is odd, but prime is better
+    public static final int numEntries = (1 << 23) + 9;
 
-
-    // Private variable (table itself)
-    private final long[] table;
+    // Private variables (table itself)
+    // We have two large arrays, one for keys and one for evaluations.
+    // They are the same size and paired up by index, so we can imagine one table of pairs
+    private final int[] keys;
+    private final byte[] evals;
 
     // Private methods
-    private static long constructEntry(long key, int eval) {
-        return (key << evalBits) + eval;
-    }
-
     private static int getIndex(long key) {
-        return (int) (key % (1 << numEntries));
-    }
-
-    private static int entryToEval(long entry) {
-        return (int) (entry % (1 << evalBits));
-    }
-
-    private static long entryToKey(long entry) {
-        return entry >> evalBits;
+        // Should not get any signed bit problems
+        // Keys are 49 bits, and stored as longs (64 bits) so they are always positive
+        // Then we modulo but numEntries, and get a new positive number
+        // At most, this positive number is (numEntries - 1)
+        // Storing that largest possible number only takes 24 bits, so it will always cast to a positive int
+        return (int) (key % numEntries);
     }
 
     // Public Methods
     public void resetTable() {
-        Arrays.fill(table, 0L);
+        Arrays.fill(keys, 0);
+        Arrays.fill(evals, (byte) 0);
     }
 
     public void put(long key, int eval) {
-        table[getIndex(key)] = constructEntry(key, eval);
+        int index = getIndex(key);
+        keys[index] = (int) key;
+        evals[index] = (byte) eval;
     }
 
     public int get(long key) {
-        long entry = table[getIndex(key)];
-        long entryKey = entryToKey(entry);
-        int eval = entryToEval(entry);
+        int index = getIndex(key);
 
-        // Make sure that the keys actually line up, and this isn't a collision
-        if (entryKey == key) {
-            return eval;
+        if (keys[index] == (int) key) {
+            return evals[index];
         }
-        else {
-            return 0;
-        }
-
+        return 0;
     }
 
     // Constructor
     TranspositionTable() {
         // Java ensures that this starts off as all 0's
-        table = new long[1 << numEntries];
+        keys = new int[numEntries];
+        evals = new byte[numEntries];
     }
 }
