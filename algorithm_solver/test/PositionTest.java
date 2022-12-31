@@ -33,8 +33,11 @@ class PositionTest {
     // Tests that a position will fit into 63 (unsigned) long bits
     @Test
     void testBitboardSize() {
-        // These needs to be true so that the position keys can go nicely into the transposition table
-        assertTrue(Position.WIDTH * (Position.HEIGHT + 1) <= 56);
+        // This needs to be true for the Chinese Remainder Theorem to hold in the transposition table
+        // We really only store 31 bits of the key
+        // We index based on numEntries, which is roughly 2^23
+        // So to make the Chinese Remainder Theorem hold, the true key size must be <= (31 + 23 = 54 bits)
+        assertTrue(Position.WIDTH * (Position.HEIGHT + 1) <= 54);
     }
 
     // Test the public static method

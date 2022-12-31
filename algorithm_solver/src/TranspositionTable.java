@@ -42,6 +42,8 @@ public class TranspositionTable {
 
     public void put(long key, int eval) {
         int index = getIndex(key);
+
+        // Keys are always positive, so this cast really only uses 31 bits
         keys[index] = (int) key;
         evals[index] = (byte) eval;
     }
