@@ -14,12 +14,12 @@ import static org.junit.jupiter.api.Assertions.*;
 // assertNotNull
 // assertNull
 
-public class EasySolverTest {
+public class BeginMediumTest {
     // Global information about this test
     final static String rootDir = "/Users/dante/OneDrive/Desktop/Connect_Four_Project/algorithm_solver";
     final static String resourcesFolder = "testResources";
-    final static String testFile = "easySolverTests.txt";
-    final static int numTests = 13;
+    final static String testFile = "beginMediumTests.txt";
+    final static int numTests = 5;
 
 
     Position position;
@@ -47,17 +47,17 @@ public class EasySolverTest {
     // Test each example position
     @RepeatedTest(numTests)
     void testSolve() {
-            String[] line = fileStream.nextLine().split(" ");
-            String columns = line[0];
-            int evalExpected = Integer.parseInt(line[1]);
+        String[] line = fileStream.nextLine().split(" ");
+        String columns = line[0];
+        int evalExpected = Integer.parseInt(line[1]);
 
-            // Play all the column moves
-            for (int i = 0; i < columns.length(); i++) {
-                int col = Integer.parseInt(columns.substring(i, i+1));
-                position.playCol(col);
-            }
+        // Play all the column moves
+        for (int i = 0; i < columns.length(); i++) {
+            int col = Integer.parseInt(columns.substring(i, i+1));
+            position.playCol(col);
+        }
 
-            assertEquals(evalExpected, Solver.solve(position));
+        assertEquals(evalExpected, Solver.solve(position));
     }
 
     // Close the file

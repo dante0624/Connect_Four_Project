@@ -14,11 +14,11 @@ import static org.junit.jupiter.api.Assertions.*;
 // assertNotNull
 // assertNull
 
-public class BeginningSolverTest {
+public class BeginEasyTest {
     // Global information about this test
     final static String rootDir = "/Users/dante/OneDrive/Desktop/Connect_Four_Project/algorithm_solver";
     final static String resourcesFolder = "testResources";
-    final static String testFile = "beginningSolverTests.txt";
+    final static String testFile = "beginEasyTests.txt";
     final static int numTests = 7;
 
 

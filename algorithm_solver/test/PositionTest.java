@@ -109,8 +109,14 @@ class PositionTest {
 
     // Tests that if we play, then we swap colors as well and now 0 is winning
     @Test
-    void testPlay() {
+    void testPlayCol() {
         complexPosition.playCol(3);
+        assertTrue(complexPosition.isWinningMove(5));
+    }
+
+    @Test
+    void testPlayMove() {
+        complexPosition.playMove(0x4000000L);
         assertTrue(complexPosition.isWinningMove(5));
     }
 
@@ -204,6 +210,19 @@ class PositionTest {
         horizontal.playCol(6);
         horizontal.playCol(1);
         assertEquals(0x0L, horizontal.possibleNonLosingMoves());
+
+    }
+
+    @Test
+    void testMoveScore() {
+        assertEquals(2, diagonal2.moveScore(0x1L));
+
+        // Flip whose move it is by playing a useless move
+        diagonal2.playMove(0x1L);
+
+        // Check creating an alignment versus one that does not
+        assertEquals(0, diagonal2.moveScore(0x2L));
+        assertEquals(1, diagonal2.moveScore(0x10000L));
 
     }
 
