@@ -24,6 +24,7 @@ public class BeginMediumTest {
 
     Position position;
     static Scanner fileStream;
+    static Solver solver;
 
     // Open the file
     @BeforeAll
@@ -35,6 +36,8 @@ public class BeginMediumTest {
         } catch (FileNotFoundException e) {
             throw new FileNotFoundException(e.toString());
         }
+
+        solver = new Solver();
     }
 
     // Reset the position before each test
@@ -57,7 +60,7 @@ public class BeginMediumTest {
             position.playCol(col);
         }
 
-        assertEquals(evalExpected, Solver.solve(position));
+        assertEquals(evalExpected, solver.solve(position));
     }
 
     // Close the file

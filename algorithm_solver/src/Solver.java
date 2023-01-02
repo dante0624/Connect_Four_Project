@@ -1,4 +1,9 @@
 public class Solver {
+    // Private Instance Variables
+    private final int[] columnOrder;
+    private final TranspositionTable table;
+
+    // Private Method
     // Evaluates the score a position using alpha beta, algorithm.
     // But, it assumes a null window, so beta == alpha + 1
 
@@ -17,12 +22,7 @@ public class Solver {
         // if actual score of position <= alpha, then actual score <= return value <= alpha
         // if actual score of position >= beta, then beta <= return value <= actual score
         // if alpha <= actual score <= beta, then return value = actual score
-    private static int nullWindow(
-            Position p,
-            int alpha,
-            int [] columnOrder,
-            TranspositionTable table
-    ) {
+    private int nullWindow(Position p, int alpha) {
         // Consider all legal moves which don't let the opponent immediately win
         long nonLosing = p.possibleNonLosingMoves();
 
@@ -94,7 +94,7 @@ public class Solver {
             Position p2 = new Position(p);
             p2.playMove(move);
 
-            int score = -nullWindow(p2, -(alpha + 1), columnOrder, table); // The awesome recursion
+            int score = -nullWindow(p2, -(alpha + 1)); // The awesome recursion
             if (score > alpha) { // This is a pruning case
 
                 // This score is a lower bound of the true score (other children could beat this score)
@@ -110,21 +110,11 @@ public class Solver {
         return alpha;
     }
 
-    public static int solve(Position p) {
+    public int solve(Position p) {
         // Check if we can win in one move on this turn, as Negamax will now assume that we cannot
         if (p.canWinNext()) {
             return (Position.WIDTH * Position.HEIGHT + 1 - p.getMovesPlayed()) / 2;
         }
-
-        // This tells us which order to explore the columns in
-        int[] columnOrder = new int[Position.WIDTH];
-        for (int i = 0; i < Position.WIDTH; i++) {
-            // Start in the middle and move out
-            columnOrder[i] = Position.WIDTH/2 + (1-2*(i%2)) * (i+1)/2;
-        }
-
-        // Create a new Transposition table
-        TranspositionTable table = new TranspositionTable();
 
         // Use Negamax, iterative deepening, and null window search
         // Comparable to using binary search, where we are searching for the true position score
@@ -149,12 +139,7 @@ public class Solver {
                 middle = max / 2;
             }
 
-            int result = nullWindow(
-                    p,
-                    middle,
-                    columnOrder,
-                    table
-            );
+            int result = nullWindow(p, middle);
 
             // This result tells us if the true position score is <= or >= middle
             if (result <= middle) {
@@ -166,5 +151,18 @@ public class Solver {
         }
         // Loop ends when min = max = true score.
         return min;
+    }
+
+    // Constructor
+    public Solver() {
+        // This tells us which order to explore the columns in
+        columnOrder = new int[Position.WIDTH];
+        for (int i = 0; i < Position.WIDTH; i++) {
+            // Start in the middle and move out
+            columnOrder[i] = Position.WIDTH/2 + (1-2*(i%2)) * (i+1)/2;
+        }
+
+        // This stores results, to reduce repeated calculations of the same position
+        table = new TranspositionTable();
     }
 }
