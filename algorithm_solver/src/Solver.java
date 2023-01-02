@@ -30,26 +30,38 @@ public class Solver {
             return -(Position.WIDTH * Position.HEIGHT - p.getMovesPlayed()) / 2;
         }
 
+        // Negamax assumption that we can't win on the next move, consider the next best case
+        // The best (max) case is that we win in 3 turns (player, opponent, back to player)
+        int max = (Position.WIDTH * Position.HEIGHT - 1 - p.getMovesPlayed()) / 2;
+
         // Opponent cannot win on their next move, consider the next worst case
         // This is where, no matter what we do, they will win in 4 moves (us, them, us, them)
         int min = -(Position.WIDTH * Position.HEIGHT - 2 - p.getMovesPlayed()) / 2;
 
-        // Compare alpha to this minimum
-        if (alpha < min) {
-            alpha = min; // Now need to have a lower bound that can't ever happen anyway
-            if (alpha >= beta) { // prune if the [alpha, beta] window is null
-                return alpha;
-            }
-        }
-
-        // Now that we can't win on the next move, consider the next best case
-        // The best (max) case is that we win in 3 turns (player, opponent, back to player)
-        int max = (Position.WIDTH * Position.HEIGHT - 1 - p.getMovesPlayed()) / 2;
-
-        // We also consult the transposition table to see if it can give a tighter, upper bound
+        // Go to the transposition table for potentially tighter upper or lower bounds
+        // We store upper bound evals as (eval - Position.MIN_SCORE + 1)
+        // We store lower bound evals as (eval + Position.MAX_SCORE - 2*Position.MIN_SCORE + 2)
+        // We to this so that there is no overlap between these (we can distinguish what was stored)
+        // Also, the lowest possible upper bound is 1, so a stored value of 0 is null data
         int tableVal = table.get(p.getKey());
+        int bound;
+
         if (tableVal != 0) {
-            max = tableVal + Position.MIN_SCORE - 1;
+            // stored upper bound
+            if (tableVal < Position.MAX_SCORE - Position.MIN_SCORE + 2) {
+                bound = tableVal + Position.MIN_SCORE - 1;
+
+                // We found a tighter, upper bound
+                if (bound < max) {max = bound;}
+            }
+
+            // stored lower bound
+            else {
+                bound = tableVal + 2*Position.MIN_SCORE - Position.MAX_SCORE - 2;
+
+                // We found a tighter, lower bound
+                if (bound > min) {min = bound;}
+            }
         }
 
         // Compare beta to this maximum
@@ -57,6 +69,14 @@ public class Solver {
             beta = max; // No need to have an upper bound that we can't ever hit anyway
             if (alpha >= beta) { // prune if the [alpha, beta] window is null
                 return beta; // We are returning a score <= alpha
+            }
+        }
+
+        // Compare alpha to this minimum
+        if (alpha < min) {
+            alpha = min; // Now need to have a lower bound that can't ever happen anyway
+            if (alpha >= beta) { // prune if the [alpha, beta] window is null
+                return alpha;
             }
         }
 
@@ -82,6 +102,9 @@ public class Solver {
 
             int score = -negamax(p2, -beta, -alpha, columnOrder, table); // The awesome recursion
             if (score >= beta) { // This is a pruning case
+
+                // This score is a lower bound of the true score (other children could beat this score)
+                table.put(p.getKey(), score + Position.MAX_SCORE - 2 * Position.MIN_SCORE + 2);
                 return score; // We are returning a score >= beta
             }
             if (score > alpha) { // alpha is now going to function as a running best
