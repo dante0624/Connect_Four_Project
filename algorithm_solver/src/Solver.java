@@ -1,8 +1,14 @@
 public class Solver {
+    // Evaluates the score a position using alpha beta, algorithm.
+    // But, it assumes a null window, so beta == alpha + 1
 
-    // Evaluates the score a position using alpha beta, algorithm
     // Assumptions:
-        // alpha < beta, this is score window
+        // Never called on a full board
+            // If solver.solve() is called on full board, instantly returns 0
+            // If solver.solve() is called with 41 moves played,
+            // then nullWindow already returns 0 because min = max = 0.
+            // We will prune and return 0.
+
         // No one has already won the game (needs to be checked beforehand)
         // The current player cannot simply win in one move (is checked
         //  beforehand by public method "solve")
@@ -11,18 +17,12 @@ public class Solver {
         // if actual score of position <= alpha, then actual score <= return value <= alpha
         // if actual score of position >= beta, then beta <= return value <= actual score
         // if alpha <= actual score <= beta, then return value = actual score
-    private static int negamax(
+    private static int nullWindow(
             Position p,
             int alpha,
-            int beta,
             int [] columnOrder,
             TranspositionTable table
     ) {
-        // First check if the game is drawn
-        if (p.getMovesPlayed() == Position.WIDTH * Position.HEIGHT) {
-            return 0;
-        }
-
         // Consider all legal moves which don't let the opponent immediately win
         long nonLosing = p.possibleNonLosingMoves();
 
@@ -64,20 +64,14 @@ public class Solver {
             }
         }
 
-        // Compare beta to this maximum
-        if (beta > max) {
-            beta = max; // No need to have an upper bound that we can't ever hit anyway
-            if (alpha >= beta) { // prune if the [alpha, beta] window is null
-                return beta; // We are returning a score <= alpha
-            }
+        // Compare window [alpha, alpha + 1] to this max
+        if (alpha >= max) {
+            return max;
         }
 
-        // Compare alpha to this minimum
+        // Compare window [alpha, alpha + 1] to this min
         if (alpha < min) {
-            alpha = min; // Now need to have a lower bound that can't ever happen anyway
-            if (alpha >= beta) { // prune if the [alpha, beta] window is null
-                return alpha;
-            }
+            return min;
         }
 
         // Prepare for the main recursion with a move sorter
@@ -100,17 +94,15 @@ public class Solver {
             Position p2 = new Position(p);
             p2.playMove(move);
 
-            int score = -negamax(p2, -beta, -alpha, columnOrder, table); // The awesome recursion
-            if (score >= beta) { // This is a pruning case
+            int score = -nullWindow(p2, -(alpha + 1), columnOrder, table); // The awesome recursion
+            if (score > alpha) { // This is a pruning case
 
                 // This score is a lower bound of the true score (other children could beat this score)
                 table.put(p.getKey(), score + Position.MAX_SCORE - 2 * Position.MIN_SCORE + 2);
                 return score; // We are returning a score >= beta
             }
-            if (score > alpha) { // alpha is now going to function as a running best
-                alpha = score;
-            }
         }
+
         // This alpha is now either the best of all children nodes (none were >= beta)
         // But it can also just be the initial value of alpha (implying that all children nodes were < alpha)
         // So, this alpha is really an upper bound of the true evaluation of the position
@@ -157,10 +149,9 @@ public class Solver {
                 middle = max / 2;
             }
 
-            int result = negamax(
+            int result = nullWindow(
                     p,
                     middle,
-                    middle+1,
                     columnOrder,
                     table
             );
