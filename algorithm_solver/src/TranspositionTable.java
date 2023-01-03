@@ -57,10 +57,15 @@ public class TranspositionTable {
         return 0;
     }
 
-    // Constructor
+    // Constructors
+    // Someone can pass in their own arrays, if they already know information
+    // They can also use it to track the arrays after solving a position, then serialize the arrays
+    TranspositionTable(int[] initialKeys, byte[] initialEvals) {
+        keys = initialKeys;
+        evals = initialEvals;
+    }
     TranspositionTable() {
         // Java ensures that this starts off as all 0's
-        keys = new int[numEntries];
-        evals = new byte[numEntries];
+       this(new int[numEntries], new byte[numEntries]);
     }
 }

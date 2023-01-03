@@ -153,8 +153,10 @@ public class Solver {
         return min;
     }
 
-    // Constructor
-    public Solver() {
+    // Constructors
+    // Someone can pass in their own table, if they already know information
+    // They can also use it to track the table after solving a position, then serialize the table
+    public Solver(TranspositionTable initialTable) {
         // This tells us which order to explore the columns in
         columnOrder = new int[Position.WIDTH];
         for (int i = 0; i < Position.WIDTH; i++) {
@@ -163,6 +165,11 @@ public class Solver {
         }
 
         // This stores results, to reduce repeated calculations of the same position
-        table = new TranspositionTable();
+        table = initialTable;
+    }
+
+    // Blank Constructor
+    public Solver() {
+        this(new TranspositionTable());
     }
 }
