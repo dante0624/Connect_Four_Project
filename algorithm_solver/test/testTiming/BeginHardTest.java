@@ -18,11 +18,11 @@ import static org.junit.jupiter.api.Assertions.*;
 // assertNotNull
 // assertNull
 
-public class BeginMediumTest {
+public class BeginHardTest {
     // Global information about this test
     final static String rootDir = "/Users/dante/OneDrive/Desktop/Connect_Four_Project/algorithm_solver";
     final static String resourcesFolder = "testResources";
-    final static String testFile = "beginMediumTests.txt";
+    final static String testFile = "beginHardTests.txt";
     final static int numTests = 1000;
 
 

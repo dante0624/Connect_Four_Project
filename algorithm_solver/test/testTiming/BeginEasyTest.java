@@ -23,7 +23,7 @@ public class BeginEasyTest {
     final static String rootDir = "/Users/dante/OneDrive/Desktop/Connect_Four_Project/algorithm_solver";
     final static String resourcesFolder = "testResources";
     final static String testFile = "beginEasyTests.txt";
-    final static int numTests = 7;
+    final static int numTests = 1000;
 
 
     Position position;
