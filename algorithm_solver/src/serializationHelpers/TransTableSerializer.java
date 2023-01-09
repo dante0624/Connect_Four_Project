@@ -16,7 +16,7 @@ import java.util.HashSet;
 public class TransTableSerializer {
     // Global information about this class
     final static String rootDir = "/Users/dante/OneDrive/Desktop/Connect_Four_Project/algorithm_solver";
-    final static String resourcesFolder = "resources";
+    final static String resourcesFolder = "resources/transTableSerialized";
     final static int maxDepth = 1;
 
     public static void main(String[] args) throws IOException {
