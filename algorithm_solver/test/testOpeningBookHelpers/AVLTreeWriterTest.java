@@ -3,24 +3,20 @@ package testOpeningBookHelpers;
 import openingBookHelpers.AVLTreeWriter;
 import openingBookHelpers.TreeNode;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
-import java.io.FileOutputStream;
-import java.io.FileInputStream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class AVLTreeWriterTest {
     // Class variables for testing insertion
     AVLTreeWriter treeWriter;
-    AVLTreeWriter expectedLeftTree;
-    AVLTreeWriter expectedRightTree;
 
     // Class variables for writing to a file
     Path path;
@@ -60,10 +56,61 @@ public class AVLTreeWriterTest {
                 treeEquality(node1.right, node2.right);
     }
 
+    // Creates some good trees for testing
+    private AVLTreeWriter createLeftTree() {
+        /* Tree has the structure:
+         *              4
+         *            /   \
+         *           /     \
+         *          1       6
+         *         / \
+         *        /   \
+         *       0     2
+         */
+        AVLTreeWriter leftTree = new AVLTreeWriter();
+        leftTree.root = new TreeNode(4L, (byte) 4);
+        leftTree.root.height = 2;
+
+        leftTree.root.left = new TreeNode(1L, (byte) 1);
+        leftTree.root.left.height = 1;
+
+        leftTree.root.left.left = new TreeNode(0L, (byte) 0);
+        leftTree.root.left.right = new TreeNode(2L, (byte) 2);
+        leftTree.root.right = new TreeNode(6L, (byte) 6);
+        return leftTree;
+    }
+    private AVLTreeWriter createRightTree() {
+        /* Tree has the structure:
+         *              4
+         *            /   \
+         *           /     \
+         *          2       7
+         *                 / \
+         *                /   \
+         *               6     8
+         */
+        AVLTreeWriter rightTree = new AVLTreeWriter();
+        rightTree.root = new TreeNode(4L, (byte) 4);
+        rightTree.root.height = 2;
+
+        rightTree.root.right = new TreeNode(7L ,(byte) 7);
+        rightTree.root.right.height = 1;
+
+        rightTree.root.right.right = new TreeNode(8L, (byte) 8);
+        rightTree.root.right.left = new TreeNode(6L, (byte) 6);
+        rightTree.root.left = new TreeNode(2L, (byte) 2);
+        return rightTree;
+    }
+
     @BeforeEach
-    void createTrees() {
-        // The tree will have all keys = values for simplicity
-        // Root is 4, left child is 2, right child is 6
+    void setUp() throws FileNotFoundException {
+        /* The tree will have all keys = values for simplicity
+         * Tree has the structure:
+         *              4
+         *            /   \
+         *           /     \
+         *          2       6
+         */
         // This allows for inserting 1, 3, 5, 7 for testing
         treeWriter = new AVLTreeWriter();
         treeWriter.root = new TreeNode(4L, (byte) 4);
@@ -72,75 +119,75 @@ public class AVLTreeWriterTest {
         treeWriter.root.left = new TreeNode(2L, (byte) 2);
         treeWriter.root.right = new TreeNode(6L, (byte) 6);
 
+        // Create file for writing and reading content as well
+        // Set up a temporary directory and file
+        try {
+            path = tempDir.resolve("testWriteContent.bin");
+        } catch (InvalidPathException ipe) {
+            System.err.println(
+                    "error creating temporary test file in " +
+                            this.getClass().getSimpleName());
+        }
 
-        // Expected tree after inserting a couple nodes to the left side
-        expectedLeftTree = new AVLTreeWriter();
-        expectedLeftTree.root = new TreeNode(4L, (byte) 4);
-        expectedLeftTree.root.height = 2;
+        file = path.toFile();
 
-        expectedLeftTree.root.left = new TreeNode(1L, (byte) 1);
-        expectedLeftTree.root.left.height = 1;
+        // Set up both I/O Streams
+        out = new FileOutputStream(file);
+        in = new FileInputStream(file);
+    }
 
-        expectedLeftTree.root.left.left = new TreeNode(0L, (byte) 0);
-        expectedLeftTree.root.left.right = new TreeNode(2L, (byte) 2);
-        expectedLeftTree.root.right = new TreeNode(6L, (byte) 6);
-
-
-        // Expected tree after inserting a couple nodes to the right side
-        expectedRightTree = new AVLTreeWriter();
-        expectedRightTree.root = new TreeNode(4L, (byte) 4);
-        expectedRightTree.root.height = 2;
-
-        expectedRightTree.root.right = new TreeNode(7L ,(byte) 7);
-        expectedRightTree.root.right.height = 1;
-
-        expectedRightTree.root.right.right = new TreeNode(8L, (byte) 8);
-        expectedRightTree.root.right.left = new TreeNode(6L, (byte) 6);
-        expectedRightTree.root.left = new TreeNode(2L, (byte) 2);
+    @AfterEach
+    void closeStreams() throws IOException {
+        in.close();
+        out.close();
     }
 
     // Insert double left
     @Test
     void testInsertLeftLeft() {
+        AVLTreeWriter leftTree = createLeftTree();
         treeWriter.insertNode(1L, (byte) 1);
 
         // This line should force some re-balancing
         treeWriter.insertNode(0L, (byte) 0);
 
-        assertTrue(treeEquality(expectedLeftTree.root, treeWriter.root));
+        assertTrue(treeEquality(leftTree.root, treeWriter.root));
     }
 
     // Insert left, then right of that
     @Test
     void testInsertLeftRight() {
+        AVLTreeWriter leftTree = createLeftTree();
         treeWriter.insertNode(0L, (byte) 0);
 
         // This line should force some re-balancing
         treeWriter.insertNode(1L, (byte) 1);
 
-        assertTrue(treeEquality(expectedLeftTree.root, treeWriter.root));
+        assertTrue(treeEquality(leftTree.root, treeWriter.root));
     }
 
     // Insert double right
     @Test
     void testInsertRightRight() {
+        AVLTreeWriter rightTree = createRightTree();
         treeWriter.insertNode(7L, (byte) 7);
 
         // This line should force some re-balancing
         treeWriter.insertNode(8L, (byte) 8);
 
-        assertTrue(treeEquality(expectedRightTree.root, treeWriter.root));
+        assertTrue(treeEquality(rightTree.root, treeWriter.root));
     }
 
     // Insert right, then left of that
     @Test
     void testInsertRightLeft() {
+        AVLTreeWriter rightTree = createRightTree();
         treeWriter.insertNode(8L, (byte) 8);
 
         // This line should force some re-balancing
         treeWriter.insertNode(7L, (byte) 7);
 
-        assertTrue(treeEquality(expectedRightTree.root, treeWriter.root));
+        assertTrue(treeEquality(rightTree.root, treeWriter.root));
     }
 
     @Test
@@ -172,21 +219,9 @@ public class AVLTreeWriterTest {
 
     @Test
     void testWriteContent() throws IOException {
-        // Set up a temporary directory and file
-        try {
-            path = tempDir.resolve("testWriteContent.bin");
-        } catch (InvalidPathException ipe) {
-            System.err.println(
-                    "error creating temporary test file in " +
-                            this.getClass().getSimpleName());
-        }
-
-        file = path.toFile();
-
         // Write the content
-        out = new FileOutputStream(file);
-        expectedLeftTree.writeContent(out);
-        out.close();
+        AVLTreeWriter leftTree = createLeftTree();
+        leftTree.writeContent(out);
 
         // Prepare to read content
         byte[] expected = new byte[] { // every line of this is a node
@@ -197,16 +232,55 @@ public class AVLTreeWriterTest {
                 0, 0, 0, 0, 0, 3, 12, 0, 0, 0
         };
         byte[] actual = new byte[50];
-        in = new FileInputStream(file);
 
         // Assert that 50 bytes were read
         assertEquals(50, in.read(actual));
-        in.close();
-
         // Assert that the content of the file is as expected
         assertArrayEquals(expected, actual);
     }
 
+    @Test
+    void testWriteContentNegative() throws IOException {
+        /* Writes content to a file,
+         * Depicted are the evals.
+         * Note that keys are negative, but only the 49 least significant bits will be written,
+         * which is the equivalent of writing a large positive long.
+         * Tree has the structure:
+         *             -4
+         *            /  \
+         *           /    \
+         *          -6    -1
+         *                /
+         *               /
+         *              -2
+         */
+        AVLTreeWriter negativeTree = new AVLTreeWriter();
+        negativeTree.root = new TreeNode(-4L, (byte) -4);
+        negativeTree.root.height = 2;
 
+        negativeTree.root.right = new TreeNode(-1L ,(byte) -1);
+        negativeTree.root.right.height = 1;
+
+        negativeTree.root.right.left = new TreeNode(-2L, (byte) -2);
+        negativeTree.root.left = new TreeNode(-6L, (byte) -6);
+
+        // Write the tree
+        negativeTree.writeContent(out);
+
+
+        // This data matches the tree described above
+        byte[] expected = new byte[] { // every line of this is a node
+                -1, -1, -1, -1, -1, -2, 121, 0, 0, 1,
+                -1, -1, -1, -1, -1, -3, 116, 0, 0, 0,
+                -1, -1, -1, -1, -1, -1, -2, 0, 0, 1,
+                -1, -1, -1, -1, -1, -1, 124, 0, 0, 0,
+        };
+        byte[] actual = new byte[40];
+
+        // Assert that 50 bytes were read
+        assertEquals(40, in.read(actual));
+        // Assert that the content of the file is as expected
+        assertArrayEquals(expected, actual);
+    }
 
 }
