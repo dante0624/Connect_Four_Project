@@ -34,6 +34,11 @@ public class Position {
         return ((1L << HEIGHT) - 1L) << col*(HEIGHT+1);
     }
 
+    // Returns a long mask for the entire (including non-playable) column
+    public static long fullColMask(int col) {
+        return ((1L << HEIGHT + 1) - 1L) << col*(HEIGHT+1);
+    }
+
     // Returns the number of 1's in a 64 bit, long number in binary.
     private static int popcount(long num) {
         int count;
@@ -157,6 +162,27 @@ public class Position {
     public long getKey(){
         // Just position + mask is  a valid, unique key
         return position + mask;
+    }
+
+    // This the key of the "mirror" of the position
+    // "Mirror" means flip the first column with the last column, etc.
+    public long getMirrorKey() {
+        long key = getKey();
+
+        // Move the left columns to the right
+        long mirrorKey = 0;
+
+        // This goes up to and including the middle column
+        for (int i = 0; i < (WIDTH + 1) / 2; i++) {
+            mirrorKey += (key & fullColMask(i)) << (HEIGHT + 1) * (WIDTH - 1 - 2 * i);
+        }
+
+        // Then go from the right, never include the middle column
+        for (int i = WIDTH - 1; i > (WIDTH - 1) / 2; i--) {
+            mirrorKey += (key & fullColMask(i)) >> (HEIGHT + 1) * (2 * i - WIDTH + 1);
+        }
+
+        return mirrorKey;
     }
 
     // Returns true iff it is legal to play in the indicated column number

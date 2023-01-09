@@ -26,6 +26,15 @@ class PositionTest {
     @BeforeEach
     void setUp() {
         blankPosition = new Position();
+        /* Complex Position:
+                * * 0 * * * *
+                * 1 0 1 0 0 *
+                * 1 1 1 0 0 *
+                0 1 0 0 1 0 *
+                0 0 1 0 1 1 *
+                1 0 0 1 1 0 *
+
+         */
         complexPosition = new Position(0x1073228E01L, 0xF9F3EFCF87L, 29);
         vertical = new Position(0x7L, 0x387L, 6);
         horizontal = new Position(0x10204000L, 0x3060C000L, 6);
@@ -73,6 +82,34 @@ class PositionTest {
     void testGetKey() {
         assertEquals(0L, blankPosition.getKey());
         assertEquals(0x10A67125D88L, complexPosition.getKey());
+    }
+
+    @Test
+    void testGetMirrorKey() {
+        /* The mirrored complex position should look like:
+                * * * * 0 * *
+                * 0 0 1 0 1 *
+                * 0 0 1 1 1 *
+                * 0 1 0 0 1 0
+                * 1 1 0 1 0 0
+                * 0 1 1 0 0 1
+         */
+        Position mirrorComplex = new Position(0x4E0A321C100L, 0x1CFBF3E7CF80L, 29);
+
+        // Proves that the positions are different (non symmetrical position)
+        assertNotEquals(complexPosition.getKey(), mirrorComplex.getKey());
+
+        // But they are actually mirrors of each other
+        assertEquals(mirrorComplex.getKey(), complexPosition.getMirrorKey());
+        assertEquals(complexPosition.getKey(), mirrorComplex.getMirrorKey());
+
+        // This tests that a position which is symmetrical
+        for (int i = 0; i < Position.WIDTH; i++) {
+            blankPosition.playCol(i);
+        }
+        assertEquals(blankPosition.getKey(), blankPosition.getMirrorKey());
+        blankPosition.playCol(Position.WIDTH / 2);
+        assertEquals(blankPosition.getKey(), blankPosition.getMirrorKey());
     }
 
     // Testing Can Play
