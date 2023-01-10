@@ -39,6 +39,7 @@ public class Position {
         return ((1L << HEIGHT + 1) - 1L) << col*(HEIGHT+1);
     }
 
+
     // Returns the number of 1's in a 64 bit, long number in binary.
     private static int popcount(long num) {
         int count;
@@ -46,6 +47,21 @@ public class Position {
             num &= num - 1;
         }
         return count;
+    }
+
+    // Given a single column as a long (only 7 bits even possible), find is MSB
+    // and then return a long with all 1's strictly below that
+    private static long belowMSB(long n) {
+        /*          0100 0000
+            1:      0110 0000
+            2:      0111 1000
+            4:      0111 1111
+            shift   0011 1111
+        */
+        n |= n >> 1;
+        n |= n >> 2;
+        n |= n >> 4;
+        return n >> 1;
     }
 
 
@@ -286,5 +302,27 @@ public class Position {
         position = otherPosition.getPosition();
         mask = otherPosition.getMask();
         movesPlayed = otherPosition.getMovesPlayed();
+    }
+
+    // This one makes a position strictly from its key
+    public Position(long key, int initialMovesPlayed) {
+        // build the key back to how it was originally defined
+        key += 0x40810204081L;
+
+        // try to build the mask from this, column by column
+        long keyMask = 0;
+
+        for (int i = 0; i < WIDTH; i++) {
+            long col = key >> (HEIGHT + 1) * i;
+
+            // key columns are only 7 bits, so chop off the 8th bit and then return only the bits below the MSB
+            col = belowMSB(col & 127);
+
+            keyMask += col << (HEIGHT + 1) * i;
+        }
+
+        position = key & keyMask;
+        mask = keyMask;
+        movesPlayed = initialMovesPlayed;
     }
 }

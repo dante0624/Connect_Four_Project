@@ -278,4 +278,13 @@ class PositionTest {
         assertEquals(complexPosition.getMask(), copy.getMask());
         assertEquals(complexPosition.getMovesPlayed(), copy.getMovesPlayed());
     }
+
+    // Tests that constructor that makes a position from it's key
+    @Test
+    void testKeyToPosition() {
+        Position copy = new Position(complexPosition.getKey(), complexPosition.getMovesPlayed());
+        assertEquals(complexPosition.getPosition(), copy.getPosition());
+        assertEquals(complexPosition.getMask(), copy.getMask());
+        assertEquals(complexPosition.getMovesPlayed(), copy.getMovesPlayed());
+    }
 }
