@@ -10,8 +10,8 @@ import java.util.HashSet;
 
 public class BookMaker {
     // Path to the folder of all opening books
-    final static String rootDir = "/Users/dante/OneDrive/Desktop/Connect_Four_Project/algorithm_solver";
     final static String resourcesFolder = "resources/openingBook";
+    static String rootDir;
 
     // This only opens the output stream
     private static FileOutputStream openStream(int depth) throws FileNotFoundException {
@@ -22,12 +22,19 @@ public class BookMaker {
 
     // Takes the desired depth as a command line argument
     public static void main(String[] args) throws IOException {
-        long startTime = System.currentTimeMillis();
+        // Prepare to write the output to the correct place
+        rootDir = System.getProperty("user.dir");
 
-        assert args.length == 1;
+        // Make sure the user directory is actually where we think it is (project root)
+        Path pathToRoot = Paths.get(rootDir);
+        assert "algorithm_solver".equals(pathToRoot.getFileName().toString());
 
         // Get the desired depth
+        assert args.length == 1;
         int depth = Integer.parseInt(args[0]);
+
+        // Start timing the entire process
+        long startTime = System.currentTimeMillis();
 
         // Important classes
         Solver solver = new Solver();
