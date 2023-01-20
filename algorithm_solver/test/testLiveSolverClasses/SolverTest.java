@@ -20,7 +20,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class SolverTest {
     // Global information about this test
-    final static String rootDir = "/Users/dante/OneDrive/Desktop/Connect_Four_Project/algorithm_solver";
     final static String resourcesFolder = "testResources";
     final static String testFile = "solverTests.txt";
     final static int numTests = 13;
@@ -34,6 +33,7 @@ public class SolverTest {
     @BeforeAll
     static void openFile() throws FileNotFoundException {
         try {
+            String rootDir = System.getProperty("user.dir");
             Path testCasesPath = Paths.get(rootDir, resourcesFolder, testFile);
             File fileIn = new File(testCasesPath.toString());
             fileStream = new Scanner(fileIn);
