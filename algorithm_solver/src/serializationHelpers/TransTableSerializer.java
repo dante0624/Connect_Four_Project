@@ -15,7 +15,6 @@ import java.util.HashSet;
 // Serializes a transposition table after solving several positions up to a max depth
 public class TransTableSerializer {
     // Global information about this class
-    final static String rootDir = "/Users/dante/OneDrive/Desktop/Connect_Four_Project/algorithm_solver";
     final static String resourcesFolder = "resources/transTableSerialized";
     final static int maxDepth = 1;
 
@@ -31,6 +30,13 @@ public class TransTableSerializer {
 
         ArrayList<Position> currPositions = new ArrayList<>();
         currPositions.add(blankPosition);
+
+        // Prepare to write the output to the correct place
+        String rootDir = System.getProperty("user.dir");
+
+        // Make sure the user directory is actually where we think it is (project root)
+        Path pathToRoot = Paths.get(rootDir);
+        assert "algorithm_solver".equals(pathToRoot.getFileName().toString());
 
         for (int depth = 0; depth <= maxDepth; depth++) {
             // Prepare the objects that do the serializing
