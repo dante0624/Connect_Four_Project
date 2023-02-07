@@ -49,21 +49,6 @@ public class Position {
         return count;
     }
 
-    // Given a single column as a long (only 7 bits even possible), find is MSB
-    // and then return a long with all 1's strictly below that
-    private static long belowMSB(long n) {
-        /*          0100 0000
-            1:      0110 0000
-            2:      0111 1000
-            4:      0111 1111
-            shift   0011 1111
-        */
-        n |= n >> 1;
-        n |= n >> 2;
-        n |= n >> 4;
-        return n >> 1;
-    }
-
 
     // Private attributes
     private long position;
@@ -309,20 +294,43 @@ public class Position {
         // build the key back to how it was originally defined
         key += 0x40810204081L;
 
-        // try to build the mask from this, column by column
-        long keyMask = 0;
+        // try to build the mask from this, moving down row by row.
+        /*
+         * Basic idea, shift the key down 1 (then AND with yourself), then 2, then 4, etc.
+         *      1 1 0 0 0 0 0       1 1 0 0 0 0 0       1 1 0 0 0 0 0       1 1 0 0 0 0 0
+         *      0 0 1 1 0 0 0       1 1 1 1 0 0 0       1 1 1 1 0 0 0       1 1 1 1 0 0 0
+         *      0 0 0 0 1 1 0       0 0 1 1 1 1 0       1 1 1 1 1 1 0       1 1 1 1 1 1 0
+         *      0 0 0 0 0 0 0  ->   0 0 0 0 1 1 0  ->   1 1 1 1 1 1 0  ->   1 1 1 1 1 1 0
+         *      0 0 0 0 0 0 0       0 0 0 0 0 0 0       0 0 1 1 1 1 0       1 1 1 1 1 1 0
+         *      0 0 0 0 0 0 0       0 0 0 0 0 0 0       0 0 0 0 1 1 0       1 1 1 1 1 1 0
+         *      0 0 0 0 0 0 1       0 0 0 0 0 0 1       0 0 0 0 0 0 1       1 1 1 1 1 1 1
+         *
+         * The problem is that if column 2 has a '1' at the bottom,
+         * then shifting left has the effect of placing this '1' at the top of column 1
+         * To do this, we need to "noUnderflow" bitmaps, which specify where '1's should
+         * even be possible after performing a shift operation.
+         *
+         *        One Shift           Two Shifts         Four Shifts
+         *      0 0 0 0 0 0 0       0 0 0 0 0 0 0       0 0 0 0 0 0 0
+         *      1 1 1 1 1 1 1       0 0 0 0 0 0 0       0 0 0 0 0 0 0
+         *      1 1 1 1 1 1 1       1 1 1 1 1 1 1       0 0 0 0 0 0 0
+         *      1 1 1 1 1 1 1  ->   1 1 1 1 1 1 1  ->   0 0 0 0 0 0 0
+         *      1 1 1 1 1 1 1       1 1 1 1 1 1 1       1 1 1 1 1 1 1
+         *      1 1 1 1 1 1 1       1 1 1 1 1 1 1       1 1 1 1 1 1 1
+         *      1 1 1 1 1 1 1       1 1 1 1 1 1 1       1 1 1 1 1 1 1
+         */
+        mask = key;
 
-        for (int i = 0; i < WIDTH; i++) {
-            long col = key >> (HEIGHT + 1) * i;
-
-            // key columns are only 7 bits, so chop off the 8th bit and then return only the bits below the MSB
-            col = belowMSB(col & 127);
-
-            keyMask += col << (HEIGHT + 1) * i;
+        for (int shift = 1; shift <= 4; shift <<= 1) {
+            long noUnderflow = BOTTOM_MASK * ((1L << HEIGHT + 1 - shift) - 1);
+            mask |= mask >> shift & noUnderflow;
         }
 
-        position = key & keyMask;
-        mask = keyMask;
+        // Finally, shift everything down 1 because the key puts each column's '1'
+        // Just above where the mask would have it
+        mask = mask >> 1 & BOARD_MASK;
+
+        position = key & mask;
         movesPlayed = initialMovesPlayed;
     }
 }
