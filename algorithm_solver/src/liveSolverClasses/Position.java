@@ -292,7 +292,7 @@ public class Position {
     // This one makes a position strictly from its key
     public Position(long key, int initialMovesPlayed) {
         // build the key back to how it was originally defined
-        key += 0x40810204081L;
+        key += BOTTOM_MASK;
 
         // try to build the mask from this, moving down row by row.
         /*
@@ -321,7 +321,7 @@ public class Position {
          */
         mask = key;
 
-        for (int shift = 1; shift <= 4; shift <<= 1) {
+        for (int shift = 1; shift <= HEIGHT; shift <<= 1) {
             long noUnderflow = BOTTOM_MASK * ((1L << HEIGHT + 1 - shift) - 1);
             mask |= mask >> shift & noUnderflow;
         }
