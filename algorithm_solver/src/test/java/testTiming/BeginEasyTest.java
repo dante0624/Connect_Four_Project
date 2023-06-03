@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class BeginEasyTest {
     // Global information about this test
-    final static String resourcesFolder = "testResources";
+    final static String resourcesFolder = "src/test/resources";
     final static String testFile = "beginEasyTests.txt";
     final static int numTests = 1000;
 
@@ -52,6 +52,7 @@ public class BeginEasyTest {
     }
 
     // Test each example position
+	@Tag("timing")
     @RepeatedTest(numTests)
     void testSolve() {
         String[] line = fileStream.nextLine().split(" ");

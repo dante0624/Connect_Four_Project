@@ -15,7 +15,7 @@ import java.util.HashSet;
 // Serializes a transposition table after solving several positions up to a max depth
 public class TransTableSerializer {
     // Global information about this class
-    final static String resourcesFolder = "resources/transTableSerialized";
+    final static String resourcesFolder = "src/main/resources/transTableSerialized";
     final static int maxDepth = 1;
 
     public static void main(String[] args) throws IOException {
