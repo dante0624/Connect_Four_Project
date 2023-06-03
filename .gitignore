@@ -1,11 +1,21 @@
+# Local timings of different solvers
 *Timings_comparison.xlsx
 
-# User-specific stuff
-*.idea/**/workspace.xml
-*.idea/**/tasks.xml
-*.idea/**/usage.statistics.xml
-*.idea/**/dictionaries
-*.idea/**/shelf
+# Intellij ide files and folders
+*.idea/
 
-# Compiled folder
-*out/
+# NVIM ide files and folders
+*.classpath
+*.project
+*.settings/
+
+# Gradle project-specific cache directory
+*.gradle
+
+# Gradle build output directory
+*build
+
+# Gradle wrappers
+*gradlew*
+*gradle/
+

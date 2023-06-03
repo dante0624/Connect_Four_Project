@@ -10,7 +10,7 @@ import java.util.HashSet;
 
 public class BookMaker {
     // Path to the folder of all opening books
-    final static String resourcesFolder = "resources/openingBook";
+    final static String resourcesFolder = "src/main/resources/openingBook";
     static String rootDir;
 
     // This only opens the output stream

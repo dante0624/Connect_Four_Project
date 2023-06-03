@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class SolverTest {
     // Global information about this test
-    final static String resourcesFolder = "testResources";
+    final static String resourcesFolder = "src/test/resources";
     final static String testFile = "solverTests.txt";
     final static int numTests = 13;
 

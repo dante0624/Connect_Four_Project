@@ -12,7 +12,7 @@ import java.nio.file.Path;
 // Only really need to look at the evals, because this will be zero if unused and nonzero if used.
 public class TransTableAnalyzer {
     // Global information about this class
-    final static String resourcesFolder = "resources/transTableSerialized";
+    final static String resourcesFolder = "src/main/resources/transTableSerialized";
     final static int maxDepth = 1;
 
     public static void main(String[] args) throws IOException, ClassNotFoundException {
