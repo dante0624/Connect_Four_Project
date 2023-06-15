@@ -1,49 +1,51 @@
 package openingBookHelpers;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Iterator;
 
+/* Class takes in a serialized tree as a File object in its constructor.
+   Class supports get and iterate methods.
+   Both of these open a stream at the start, then close it before returning
+   or raising errors. As such this class can be reused once initialized. */
 public class TreeReader implements Iterable<Long> {
-    public String filePath;
-
+    private File bookFile;
+	private FileInputStream bookIn;
     private final String readErrorMessage = "Could not read 10 bytes at once";
 
-    private FileInputStream openStream() {
+    private void openStream() {
         try {
-            return new FileInputStream(filePath);
+            bookIn = new FileInputStream(bookFile);
         }
         catch (IOException e) {
-            throw new RuntimeException("Error opening file at " + filePath);
+            throw new RuntimeException("Error opening file at " + bookFile.toString());
         }
     }
-    private void closeStream(FileInputStream bookIn) {
+    private void closeStream() {
         try {
             bookIn.close();
         }
         catch (IOException ex) {
-            throw new RuntimeException("Failed to close file " + filePath);
+            throw new RuntimeException("Failed to close file " + bookFile.toString());
         }
     }
 
     // These raise exceptions, but make sure to close the a stream first
     // We only throw IO Exceptions in get, so we can close directly
-    private void throwIOSafely(String errorMessage, FileInputStream bookIn) throws IOException {
+    private void throwIOSafely(String errorMessage) throws IOException {
         bookIn.close();
         throw new IOException(errorMessage);
     }
     // We only throw IllegalArgumentExceptions in get, when we can't find a key
-    private void noKeyFoundError(
-		FileInputStream bookIn,
-		long searchKey
-    ) throws IllegalArgumentException, IOException {
+    private void noKeyFoundError(long searchKey) throws IllegalArgumentException, IOException {
         bookIn.close();
         throw new IllegalArgumentException("No key of " + searchKey + " found");
     }
 
     // We throw runtime errors in the iterable, so we use the closeStream method
-    private void throwRuntimeSafely(String errorMessage, FileInputStream bookIn) {
-        closeStream(bookIn);
+    private void throwRuntimeSafely(String errorMessage) {
+        closeStream();
         throw new RuntimeException(errorMessage);
     }
 
@@ -65,7 +67,8 @@ public class TreeReader implements Iterable<Long> {
     // Returns an eval when given a key and a depth
     // Throws an illegal argument exception if the key is not found
     public int get(long searchKey) throws IllegalArgumentException, IOException {
-        FileInputStream bookIn = openStream();
+		openStream();
+
         byte[] currEntry = new byte[10];
         long key;
         int value, leftWeight;
@@ -73,7 +76,7 @@ public class TreeReader implements Iterable<Long> {
 
         while (bookIn.available() >= 10) {
             if (bookIn.read(currEntry, 0, 10) != 10) {
-                throwIOSafely(readErrorMessage, bookIn);
+                throwIOSafely(readErrorMessage);
             }
 
             key = reconstructKey(currEntry);
@@ -96,22 +99,22 @@ public class TreeReader implements Iterable<Long> {
 			// Checking left subtree just involves going to the next node
             if (searchKey < key) {
                 if (leftWeight == 0) {
-                    noKeyFoundError(bookIn, searchKey);
+                    noKeyFoundError(searchKey);
                 }
                 continue;
             }
 
 			// Checking right subtree involves skipping the entire left subtree
             if (!rightChildExists) {
-                noKeyFoundError(bookIn, searchKey);
+                noKeyFoundError(searchKey);
             }
 
             if (bookIn.skip(leftWeight * 10) != leftWeight * 10) {
-                throwIOSafely("Error skipping bytes from file", bookIn);
+                throwIOSafely("Error skipping bytes from file");
             }
         }
 
-        noKeyFoundError(bookIn, searchKey);
+        noKeyFoundError(searchKey);
 
         // This will never happen because of the error above, but my LSP wants it
         return 0;
@@ -120,9 +123,9 @@ public class TreeReader implements Iterable<Long> {
     // Lets us iterate over all keys in a file
     @Override
     public Iterator<Long> iterator() {
-        return new Iterator<>() {
-            private final FileInputStream bookIn = openStream();
+		openStream();
 
+        return new Iterator<>() {
             @Override
             public boolean hasNext() {
                 boolean hasData = false;
@@ -130,10 +133,10 @@ public class TreeReader implements Iterable<Long> {
                 try {
                     hasData = bookIn.available() >= 10;
                     if (!hasData) {
-                        closeStream(bookIn);
+                        closeStream();
                     }
                 } catch (IOException e) {
-                    throwRuntimeSafely("Error checking availability from file", bookIn);
+                    throwRuntimeSafely("Error checking availability from file");
                 }
                 return hasData;
             }
@@ -144,10 +147,10 @@ public class TreeReader implements Iterable<Long> {
 
                 try {
                     if (bookIn.read(currEntry, 0, 10) != 10) {
-                        throwRuntimeSafely(readErrorMessage, bookIn);
+                        throwRuntimeSafely(readErrorMessage);
                     }
                 } catch (IOException e) {
-                    throwRuntimeSafely(readErrorMessage, bookIn);
+                    throwRuntimeSafely(readErrorMessage);
                 }
 
                 return reconstructKey(currEntry);
@@ -155,7 +158,7 @@ public class TreeReader implements Iterable<Long> {
         };
     }
 
-    public TreeReader(String initialFileName) {
-        filePath = initialFileName;
+    public TreeReader(File initialFile) {
+		bookFile = initialFile;
     }
 }

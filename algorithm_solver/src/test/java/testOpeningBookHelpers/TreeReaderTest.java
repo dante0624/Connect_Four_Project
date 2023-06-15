@@ -21,7 +21,6 @@ public class TreeReaderTest {
     Path path;
     File file;
     FileOutputStream out;
-    FileInputStream in;
 
     /* This directory and the files created in it will be deleted after
      * tests are run, even in the event of failures or exceptions.
@@ -92,16 +91,14 @@ public class TreeReaderTest {
 
         // Set up both I/O Streams
         out = new FileOutputStream(file);
-        in = new FileInputStream(file);
 
         // Set up the tree reader with a made up depth of 0
-        treeReader = new TreeReader(file.getAbsolutePath());
+        treeReader = new TreeReader(file);
     }
 
     @AfterEach
     void closeStreams() throws IOException {
         out.close();
-        in.close();
     }
 
     @ParameterizedTest

@@ -45,7 +45,7 @@ public class BookMaker {
         else {
             String fileName = "depth" + (depth - 1) + "Book.bin";
             Path filePath = Paths.get(rootDir, resourcesFolder, fileName);
-            TreeReader reader = new TreeReader(filePath.toString());
+            TreeReader reader = new TreeReader(filePath.toFile());
             HashSet<Long> solvedKeys = new HashSet<>();
 
             for (long key: reader) {
