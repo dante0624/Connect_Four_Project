@@ -7,12 +7,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import static org.junit.jupiter.api.Assertions.*;
-// We have 5 asserts we can use now
-// assertEquals
-// assertTrue
-// assertFalse
-// assertNotNull
-// assertNull
 
 class PositionTest {
     Position blankPosition;
@@ -52,30 +46,10 @@ class PositionTest {
         assertTrue(Position.WIDTH * (Position.HEIGHT + 1) <= 54);
     }
 
-    // Test the public static method
     @Test
     void testColMask() {
         assertEquals(0x3FL, Position.colMask(0));
         assertEquals(0x7E00000L, Position.colMask(3));
-    }
-
-    // Some simple "Getters First"
-    @Test
-    void testGetPosition() {
-        assertEquals(0L, blankPosition.getPosition());
-        assertEquals(0x1073228E01L, complexPosition.getPosition());
-    }
-
-    @Test
-    void testGetMask() {
-        assertEquals(0L, blankPosition.getMask());
-        assertEquals(0xF9F3EFCF87L, complexPosition.getMask());
-    }
-
-    @Test
-    void testGetMovesPlayed() {
-        assertEquals(0, blankPosition.getMovesPlayed());
-        assertEquals(29, complexPosition.getMovesPlayed());
     }
 
     @Test
@@ -112,7 +86,6 @@ class PositionTest {
         assertEquals(blankPosition.getKey(), blankPosition.getMirrorKey());
     }
 
-    // Testing Can Play
     @ParameterizedTest
     @ValueSource(ints = { 0, 1, 2, 3, 4, 5, 6 })
     void testCanPlayBlank(int col) {
@@ -168,7 +141,7 @@ class PositionTest {
     void testCanWinNextVertical() {
         assertTrue(vertical.canWinNext());
 
-        // block off the winning columns
+        // block off the winning column
         vertical.playCol(1);
         vertical.playCol(0);
         assertFalse(vertical.canWinNext());
@@ -270,21 +243,19 @@ class PositionTest {
     }
 
 
-    // Tests the constructor which makes a copy of another position
     @Test
     void testCopy() {
         Position copy = new Position(complexPosition);
-        assertEquals(complexPosition.getPosition(), copy.getPosition());
-        assertEquals(complexPosition.getMask(), copy.getMask());
-        assertEquals(complexPosition.getMovesPlayed(), copy.getMovesPlayed());
+        assertEquals(complexPosition.position, copy.position);
+        assertEquals(complexPosition.mask, copy.mask);
+        assertEquals(complexPosition.mask, copy.mask);
     }
 
-    // Tests that constructor that makes a position from it's key
     @Test
     void testKeyToPosition() {
-        Position copy = new Position(complexPosition.getKey(), complexPosition.getMovesPlayed());
-        assertEquals(complexPosition.getPosition(), copy.getPosition());
-        assertEquals(complexPosition.getMask(), copy.getMask());
-        assertEquals(complexPosition.getMovesPlayed(), copy.getMovesPlayed());
+        Position copy = new Position(complexPosition.getKey(), complexPosition.movesPlayed);
+        assertEquals(complexPosition.position, copy.position);
+        assertEquals(complexPosition.mask, copy.mask);
+        assertEquals(complexPosition.movesPlayed, copy.movesPlayed);
     }
 }

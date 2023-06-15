@@ -9,7 +9,6 @@ import java.nio.file.Paths;
 import java.util.HashSet;
 
 public class BookMaker {
-    // Path to the folder of all opening books
     final static String resourcesFolder = "src/main/resources/openingBook";
     static String rootDir;
 
@@ -22,21 +21,15 @@ public class BookMaker {
 
     // Takes the desired depth as a command line argument
     public static void main(String[] args) throws IOException {
-        // Prepare to write the output to the correct place
         rootDir = System.getProperty("user.dir");
-
-        // Make sure the user directory is actually where we think it is (project root)
         Path pathToRoot = Paths.get(rootDir);
         assert "algorithm_solver".equals(pathToRoot.getFileName().toString());
 
-        // Get the desired depth
         assert args.length == 1;
         int depth = Integer.parseInt(args[0]);
 
-        // Start timing the entire process
         long startTime = System.currentTimeMillis();
 
-        // Important classes
         Solver solver = new Solver();
         AVLTreeWriter treeWriter = new AVLTreeWriter();
         FileOutputStream out = openStream(depth);
@@ -48,47 +41,43 @@ public class BookMaker {
             treeWriter.insertNode(blankPosition.getKey(), (byte) eval);
         }
 
+		// We have depth > 0, so we need to read from the previous file
         else {
-            // We have depth > 0, so we need to read from the previous file
             String fileName = "depth" + (depth - 1) + "Book.bin";
             Path filePath = Paths.get(rootDir, resourcesFolder, fileName);
             TreeReader reader = new TreeReader(filePath.toString());
-
-            // Keep track of all keys we have already solved at this depth
             HashSet<Long> solvedKeys = new HashSet<>();
 
             for (long key: reader) {
-                // Need to turn keys into positions
-                Position oldPosition = new Position(key, depth - 1);
+                Position priorPosition = new Position(key, depth - 1);
 
-                // Play all possible columns
                 for (int col = 0; col < Position.WIDTH; col++) {
-                    // Copy the position before playing the new move
-                    if (oldPosition.canPlay(col) && !oldPosition.isWinningMove(col)) {
-                        Position p = new Position(oldPosition);
-                        p.playCol(col);
+					// We do not store illegal or winning positions in the book
+                    if (!priorPosition.canPlay(col) || priorPosition.isWinningMove(col)) {
+						continue;
+					}
 
-                        // Can already be in this hashmap due to transposition, or solving the mirror case
-                        if (!solvedKeys.contains(p.getKey())) {
-                            int eval = solver.solve(p);
-                            treeWriter.insertNode(p.getKey(), (byte) eval);
-                            solvedKeys.add(p.getKey());
+					Position position = new Position(priorPosition);
+					position.playCol(col);
 
-                            // If the position is not symmetrical, add the mirror
-                            if (p.getKey() != p.getMirrorKey()) {
-                                treeWriter.insertNode(p.getMirrorKey(), (byte) eval);
-                                solvedKeys.add(p.getMirrorKey());
-                            }
-                        }
-                    }
+					// Can already be in this hashmap due to transposition, or solving the mirror case
+					if (solvedKeys.contains(position.getKey())) {
+						continue;
+					}
+
+					int eval = solver.solve(position);
+					treeWriter.insertNode(position.getKey(), (byte) eval);
+					solvedKeys.add(position.getKey());
+
+					if (position.getKey() != position.getMirrorKey()) {
+						treeWriter.insertNode(position.getMirrorKey(), (byte) eval);
+						solvedKeys.add(position.getMirrorKey());
+					}
                 }
             }
         }
 
-        // Write the result
         treeWriter.writeContent(out);
-
-        // Close just the output stream
         out.close();
 
         long endTime = System.currentTimeMillis();

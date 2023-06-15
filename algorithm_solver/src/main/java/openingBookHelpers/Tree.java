@@ -1,16 +1,11 @@
 package openingBookHelpers;
 
+// Binary mapping tree with key value pairs
 public class Tree {
-    // Meant to reinvent a binary mapping tree
-    // Each node has (key, value) pairs
-    // Contains simple, abstract methods inserting a new node at the bottom of tree
-
-    // Public variable
     public TreeNode root;
 
-    // Private Interface
     // Tries to find and return a node from its key, given some starting node
-    // Simple and recursive implementation
+	// Returns null if the key is not found
     private TreeNode searchNodeHelper(long key, TreeNode node) {
         if (node == null) {
             return null;
@@ -25,23 +20,16 @@ public class Tree {
         return searchNodeHelper(key, node.right);
     }
 
-    // Public Interface
-    // Simple getter
-    public TreeNode getRoot() {
-        return root;
-    }
-
     // Return a whole node based on a key, if that key is in the tree
     // Returns null otherwise
     public TreeNode searchNode(long key) {
         return searchNodeHelper(key, root);
     }
 
-    // Inserts a new node with (key, value), given some starting node
-    // If the starting node is null, just return the new node
-    // Otherwise, recursively insert call the function below, then use the return value to actually insert
+	/* Inserts key and value below a starting node
+	If the starting node is null we return the new (key, value) as a new node
+	Otherwise we return back the original starting node */
     public TreeNode insertNodeHelper(long key, byte value, TreeNode node) {
-        // Null node case
         if (node == null) {
             return new TreeNode(key, value);
         }
@@ -51,7 +39,6 @@ public class Tree {
             throw new IllegalArgumentException("Tree already contains a node with key " + key);
         }
 
-        // Recursive cases
         if (key < node.key) {
             node.left = insertNodeHelper(key, value, node.left);
         }

@@ -11,15 +11,8 @@ import liveSolverClasses.Solver;
 import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
-// We have 5 asserts we can use now
-// assertEquals
-// assertTrue
-// assertFalse
-// assertNotNull
-// assertNull
 
 public class BeginHardTest {
-    // Global information about this test
     final static String resourcesFolder = "src/test/resources";
     final static String testFile = "beginHardTests.txt";
     final static int numTests = 1000;
@@ -29,7 +22,6 @@ public class BeginHardTest {
     static Scanner fileStream;
     static Solver solver;
 
-    // Open the file
     @BeforeAll
     static void openFile() throws FileNotFoundException {
         try {
@@ -44,14 +36,12 @@ public class BeginHardTest {
         solver = new Solver();
     }
 
-    // Reset the position before each test
     @BeforeEach
     void resetPosition()  {
         position = new Position();
 
     }
 
-    // Test each example position
 	@Tag("timing")
     @RepeatedTest(numTests)
     void testSolve() {
@@ -59,7 +49,6 @@ public class BeginHardTest {
         String columns = line[0];
         int evalExpected = Integer.parseInt(line[1]);
 
-        // Play all the column moves
         for (int i = 0; i < columns.length(); i++) {
             int col = Integer.parseInt(columns.substring(i, i+1));
             position.playCol(col);
@@ -68,7 +57,6 @@ public class BeginHardTest {
         assertEquals(evalExpected, solver.solve(position));
     }
 
-    // Close the file
     @AfterAll
     static void closeFile() {
         fileStream.close();

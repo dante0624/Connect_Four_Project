@@ -5,12 +5,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
-// We have 5 asserts we can use now
-// assertEquals
-// assertTrue
-// assertFalse
-// assertNotNull
-// assertNull
 
 public class MoveSorterTest {
     // These are just constants that reflect a chip at the bottom of each column
@@ -41,12 +35,10 @@ public class MoveSorterTest {
     // Tests the fact that if we put in all ties, it will function as a stack
     @Test
     void testStableSort() {
-        // put them all in one way
         for (long columnBottom : columnBottoms) {
             moveSorter.add(columnBottom, 0);
         }
 
-        // they should come out reversed
         for (int i = columnBottoms.length - 1; i >= 0; i--) {
             assertEquals(columnBottoms[i], moveSorter.getNext());
         }
@@ -55,10 +47,7 @@ public class MoveSorterTest {
     // Here the scores are all different and in a random order
     @Test
     void testNormalSort() {
-        // We will put in each column (0 - 6) with scores in this order
         int [] scores = {3, 2, 6, 7, 5, 4, 1};
-
-        // As a result, we expect the columns to come out in this order
         int [] expectedOrder = {3, 2, 4, 5, 0, 1, 6};
 
         for (int i = 0; i < columnBottoms.length; i++) {
@@ -74,10 +63,7 @@ public class MoveSorterTest {
     // Expect to sort as much as possible, then treat the ties like a stack
     @Test
     void testHybridSort() {
-        // We will put in each column (0 - 6) with scores in this order
         int [] scores = {3, 3, 6, 7, 5, 5, 1};
-
-        // As a result, we expect the columns to come out in this order
         int [] expectedOrder = {3, 2, 5, 4, 1, 0, 6};
 
         for (int i = 0; i < columnBottoms.length; i++) {
@@ -92,17 +78,14 @@ public class MoveSorterTest {
     // Get next works as an iterator, which ends with 0
     @Test
     void testIteratorEnds() {
-        // Add several moves and scores
         for (long columnBottom : columnBottoms) {
             moveSorter.add(columnBottom, 0);
         }
 
-        // Remove all of them
         for (long columnBottom : columnBottoms) {
             assertTrue(moveSorter.getNext() != 0L);
         }
 
-        // Iterator should now return 0
         assertEquals(0, moveSorter.getNext());
 
     }

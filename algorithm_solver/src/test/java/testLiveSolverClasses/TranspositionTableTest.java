@@ -6,12 +6,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
-// We have 5 asserts we can use now
-// assertEquals
-// assertTrue
-// assertFalse
-// assertNotNull
-// assertNull
 
 public class TranspositionTableTest {
     static TranspositionTable table;

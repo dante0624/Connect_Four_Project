@@ -14,7 +14,6 @@ import java.util.HashSet;
 
 // Serializes a transposition table after solving several positions up to a max depth
 public class TransTableSerializer {
-    // Global information about this class
     final static String resourcesFolder = "src/main/resources/transTableSerialized";
     final static int maxDepth = 1;
 
@@ -25,21 +24,16 @@ public class TransTableSerializer {
         TranspositionTable myTable = new TranspositionTable(myKeys, myEvals);
         Solver solver = new Solver(myTable);
 
-        // Keep track of all unique positions at this depth
         Position blankPosition = new Position();
 
         ArrayList<Position> currPositions = new ArrayList<>();
         currPositions.add(blankPosition);
 
-        // Prepare to write the output to the correct place
         String rootDir = System.getProperty("user.dir");
-
-        // Make sure the user directory is actually where we think it is (project root)
         Path pathToRoot = Paths.get(rootDir);
         assert "algorithm_solver".equals(pathToRoot.getFileName().toString());
 
         for (int depth = 0; depth <= maxDepth; depth++) {
-            // Prepare the objects that do the serializing
             String keysFileName = "depth"+depth+"Keys.ser";
             String evalsFileName = "depth"+depth+"Evals.ser";
             Path keysPath = Paths.get(rootDir, resourcesFolder, keysFileName);
@@ -48,32 +42,29 @@ public class TransTableSerializer {
             ObjectOutputStream outKeys = new ObjectOutputStream(new FileOutputStream(keysPath.toString()));
             ObjectOutputStream outEvals = new ObjectOutputStream(new FileOutputStream(evalPath.toString()));
 
-            // Prepare for the next depth
             ArrayList<Position> nextPositions = new ArrayList<>();
             HashSet<Long> nextPositionKeys = new HashSet<>();
 
-            // Iterate through each position at this depth
-            for (Position p : currPositions) {
+            for (Position position : currPositions) {
                 // First solve it, filling up the table
-                solver.solve(p);
+                solver.solve(position);
 
-                // Then add all unique children for the next depth
                 for (int col = 0; col < Position.WIDTH; col++) {
-                    if (p.canPlay(col)) {
-                        // Make a copy of the position, then play the column
-                        Position pChild = new Position(p);
-                        pChild.playCol(col);
+                    if (!position.canPlay(col) || position.isWinningMove(col)) {
+						continue;
+					}
+					Position nextPosition = new Position(position);
+					nextPosition.playCol(col);
 
-                        // Only add it if it is unique (the key has not been seen yet)
-                        if (!nextPositionKeys.contains(pChild.getKey())) {
-                            nextPositionKeys.add(pChild.getKey());
-                            nextPositions.add(pChild);
-                        }
-                    }
+					if (nextPositionKeys.contains(nextPosition.getKey())) {
+						continue;
+					}
+
+					nextPositionKeys.add(nextPosition.getKey());
+					nextPositions.add(nextPosition);
                 }
             }
 
-            // Write and close everything
             outKeys.writeObject(myKeys);
             outKeys.flush();
             outKeys.close();
@@ -82,7 +73,6 @@ public class TransTableSerializer {
             outEvals.flush();
             outEvals.close();
 
-            // Say that we are done
             System.out.println("Done serializing at depth " + depth);
 
             // Prepare for the next depth

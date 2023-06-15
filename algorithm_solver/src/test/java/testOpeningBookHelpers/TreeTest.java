@@ -11,20 +11,13 @@ public class TreeTest {
 
     @BeforeEach
     void createTree() {
-        // The tree will have all keys = values for simplicity
-        // Root is 4, left child is 2, right child is 6
-        // This allows for inserting 1, 3, 5, 7 for testing
+        /* The tree will have all keys = values for simplicity
+        Root is 4, left child is 2, right child is 6
+        This allows for inserting 1, 3, 5, 7 for testing */
         tree = new Tree();
         tree.root = new TreeNode(4L, (byte) 4);
         tree.root.left = new TreeNode(2L, (byte) 2);
         tree.root.right = new TreeNode(6L, (byte) 6);
-    }
-
-    @Test
-    void testGetRoot() {
-        TreeNode root = tree.getRoot();
-        assertEquals(4L, root.key);
-        assertEquals((byte) 4, root.value);
     }
 
     @Test

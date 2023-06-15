@@ -4,7 +4,10 @@ public class Position {
     // This is all a bitmap, that requires 49 total bits
     // http://blog.gamesolver.org/solving-connect-four/06-bitboard/
 
-    // Constants of the Board
+    public long position;
+    public long mask;
+    public int movesPlayed;
+
     public static final int WIDTH = 7;
     public static final int HEIGHT = 6;
     public static final int MIN_SCORE = -(WIDTH*HEIGHT)/2 + 3;
@@ -18,7 +21,6 @@ public class Position {
     private static final long BOARD_MASK = BOTTOM_MASK * ((1L << HEIGHT) - 1);
 
 
-    // Static methods for generating masks based on a column
     // Returns a long mask for the bottom cell of a column
     private static long bottomMask(int col) {
         return 1L << col*(HEIGHT+1);
@@ -50,21 +52,15 @@ public class Position {
     }
 
 
-    // Private attributes
-    private long position;
-    private long mask;
-    private int movesPlayed;
-
-    // Private interface
     // Returns a bitmap that has 1's everywhere the current player can legally play
     // Either a single 1 per column, or no 1's in a full column
     private long possible() {
         return (mask + BOTTOM_MASK) & BOARD_MASK;
     }
 
-    // Returns a bitmap that has 1's everywhere that we can currently win
-    // This means all squares where there is currently no chip, but a chip there creates connect 4
-    // This square may be "floating" (meaning if we play that column the chip will fall lower)
+    /* Returns a bitmap that has 1's everywhere that we can currently win
+    This means all squares where there is currently no chip, but a chip there creates connect 4
+    This square may be "floating" (meaning if we play that column the chip will fall lower) */
     private static long computeWinningPosition(long position, long mask) {
         // Vertical
         long winning = (position << 1) & (position << 2) & (position << 3);
@@ -148,32 +144,21 @@ public class Position {
         return (pairs & (pairs >> 2)) != 0;
     }
 
-    // Public interface
-    // Simple getters
-    public long getPosition(){
-        return position;
-    }
-    public long getMask() {
-        return mask;
-    }
-    public int getMovesPlayed() {
-        return movesPlayed;
-    }
 
     public long getKey(){
-        // Just position + mask is  a valid, unique key
+		/* Original definition of the key was position + mask + BOTTOM_MASK
+		This has a conceptual interpretation and is guaranteed to be unique per positon
+		But because this is unique, so is just position + mask */
         return position + mask;
     }
 
-    // This the key of the "mirror" of the position
-    // "Mirror" means flip the first column with the last column, etc.
+    // "Mirror" means flip the first column with the last column
     public long getMirrorKey() {
         long key = getKey();
 
-        // Move the left columns to the right
         long mirrorKey = 0;
 
-        // This goes up to and including the middle column
+        // This goes up to and including the middle column if it exists
         for (int i = 0; i < (WIDTH + 1) / 2; i++) {
             mirrorKey += (key & fullColMask(i)) << (HEIGHT + 1) * (WIDTH - 1 - 2 * i);
         }
@@ -194,35 +179,24 @@ public class Position {
     // Actually places a token in the respective column
     // Should never be called on a non-playable (full) column
     public void playCol(int col) {
-        // First, switch the bits of current player and opposing player
         position ^= mask;
-
-        // Move up the mask by one in the column, but do not change position
-        // This has an effect of adding a 0 to the key, which we want because after playing the "colors" swap
         mask |= mask + bottomMask(col);
 
-        // Increment the move counter
         movesPlayed++;
     }
 
-    // move is a bitmap with a single 1 where you want the new token to be placed
+    // Move is a bitmap with a single 1 where you want the new token to be placed
     // Must check beforehand that this move is valid (not floating or taken)
     public void playMove(long move) {
-        // First, switch the bits of current player and opposing player
         position ^= mask;
-
-        // Add the move to the mask, but not to the position
-        // This has an effect of adding a 0 to the key, which we want because after playing the "colors" swap
         mask |= move;
 
-        // Increment the move counter
         movesPlayed++;
     }
 
     // Returns true if the player will win by playing in a current column
     // Note, if the position is already won (somehow the game didn't end) this still returns true
     public boolean isWinningMove(int col) {
-        // Make a copy of the current position
         long pos = position;
 
         // Add a single 1 to the top of the desired column
@@ -236,17 +210,12 @@ public class Position {
         return (winningPosition() & possible()) != 0;
     }
 
-    // Returns a bitmap of all the possible next moves that do not lose in one turn
-    // A losing move is a move leaving the possibility for the opponent to win directly.
-    // This function will not work correctly if you can win on this turn (because then that is optimal)
+    /* Returns a bitmap of all the possible next moves that do not lose in one turn
+    A losing move is a move leaving the possibility for the opponent to win directly.
+    This function will not work correctly if you can win on this turn (because then that is optimal) */
     public long possibleNonLosingMoves() {
-        // At most a single 1 per column, containing all legally playable moves
         long possibleMoves = possible();
-
-        // Has 1's everywhere that the opponent can create connect 4 (including "floating" squares)
         long opponentWin = opponentWinningPosition();
-
-        // Moves are forced because we can play them right now, and the opponent can also win there
         long forcedMoves = possibleMoves & opponentWin;
 
         if (forcedMoves != 0) {
@@ -257,21 +226,19 @@ public class Position {
             possibleMoves = forcedMoves;
         }
 
-        // At this point, possibleMoves is one of two cases:
-        // Case 1: There are no forced moves, so possibleMoves is just all playable columns
-        // Case 2: There is a single forced move, so possibleMoves is that one move
-        // We now want to remove any moves which "build up" and reveal a new winning move to the opponent
+        /* At this point, possibleMoves is one of two cases:
+        Case 1: There are no forced moves, so possibleMoves is just all playable columns
+        Case 2: There is a single forced move, so possibleMoves is that one move
+        We now want to remove any moves which "build up" and reveal a new winning move to the opponent */
         return possibleMoves & ~(opponentWin >> 1);
     }
 
-    // Returns a score of a given move
     // The move is assumed to be a bitmap with a single 1 for the new chip
     // The score is the number of total alignment possibilities, after this new chip is played
     public int moveScore(long move) {
         return popcount(computeWinningPosition(move | position, mask));
     }
 
-    // Constructors
     public Position() {
         position = 0L;
         mask = 0L;
@@ -282,43 +249,41 @@ public class Position {
         mask = initialMask;
         movesPlayed = initialMovesPlayed;
     }
-    // This one makes a copy of a position
     public Position(Position otherPosition) {
-        position = otherPosition.getPosition();
-        mask = otherPosition.getMask();
-        movesPlayed = otherPosition.getMovesPlayed();
+        position = otherPosition.position;
+        mask = otherPosition.mask;
+        movesPlayed = otherPosition.movesPlayed;
     }
 
-    // This one makes a position strictly from its key
+    // This makes a position strictly from its key
+	// Necessary for creating an opening book
     public Position(long key, int initialMovesPlayed) {
-        // build the key back to how it was originally defined
+        // Build the key back to how it was originally defined
         key += BOTTOM_MASK;
 
-        // try to build the mask from this, moving down row by row.
-        /*
-         * Basic idea, shift the key down 1 (then AND with yourself), then 2, then 4, etc.
-         *      1 1 0 0 0 0 0       1 1 0 0 0 0 0       1 1 0 0 0 0 0       1 1 0 0 0 0 0
-         *      0 0 1 1 0 0 0       1 1 1 1 0 0 0       1 1 1 1 0 0 0       1 1 1 1 0 0 0
-         *      0 0 0 0 1 1 0       0 0 1 1 1 1 0       1 1 1 1 1 1 0       1 1 1 1 1 1 0
-         *      0 0 0 0 0 0 0  ->   0 0 0 0 1 1 0  ->   1 1 1 1 1 1 0  ->   1 1 1 1 1 1 0
-         *      0 0 0 0 0 0 0       0 0 0 0 0 0 0       0 0 1 1 1 1 0       1 1 1 1 1 1 0
-         *      0 0 0 0 0 0 0       0 0 0 0 0 0 0       0 0 0 0 1 1 0       1 1 1 1 1 1 0
-         *      0 0 0 0 0 0 1       0 0 0 0 0 0 1       0 0 0 0 0 0 1       1 1 1 1 1 1 1
-         *
-         * The problem is that if column 2 has a '1' at the bottom,
-         * then shifting left has the effect of placing this '1' at the top of column 1
-         * To do this, we need to "noUnderflow" bitmaps, which specify where '1's should
-         * even be possible after performing a shift operation.
-         *
-         *        One Shift           Two Shifts         Four Shifts
-         *      0 0 0 0 0 0 0       0 0 0 0 0 0 0       0 0 0 0 0 0 0
-         *      1 1 1 1 1 1 1       0 0 0 0 0 0 0       0 0 0 0 0 0 0
-         *      1 1 1 1 1 1 1       1 1 1 1 1 1 1       0 0 0 0 0 0 0
-         *      1 1 1 1 1 1 1  ->   1 1 1 1 1 1 1  ->   0 0 0 0 0 0 0
-         *      1 1 1 1 1 1 1       1 1 1 1 1 1 1       1 1 1 1 1 1 1
-         *      1 1 1 1 1 1 1       1 1 1 1 1 1 1       1 1 1 1 1 1 1
-         *      1 1 1 1 1 1 1       1 1 1 1 1 1 1       1 1 1 1 1 1 1
-         */
+        /* Try to build the mask from this, moving down row by row.
+         Basic idea, shift the key down 1 (then AND with yourself), then 2, then 4, etc.
+              1 1 0 0 0 0 0       1 1 0 0 0 0 0       1 1 0 0 0 0 0       1 1 0 0 0 0 0
+              0 0 1 1 0 0 0       1 1 1 1 0 0 0       1 1 1 1 0 0 0       1 1 1 1 0 0 0
+              0 0 0 0 1 1 0       0 0 1 1 1 1 0       1 1 1 1 1 1 0       1 1 1 1 1 1 0
+              0 0 0 0 0 0 0  ->   0 0 0 0 1 1 0  ->   1 1 1 1 1 1 0  ->   1 1 1 1 1 1 0
+              0 0 0 0 0 0 0       0 0 0 0 0 0 0       0 0 1 1 1 1 0       1 1 1 1 1 1 0
+              0 0 0 0 0 0 0       0 0 0 0 0 0 0       0 0 0 0 1 1 0       1 1 1 1 1 1 0
+              0 0 0 0 0 0 1       0 0 0 0 0 0 1       0 0 0 0 0 0 1       1 1 1 1 1 1 1
+         
+         The problem is that if column 2 has a '1' at the bottom,
+         then shifting right has the effect of placing this '1' at the top of column 1
+         To do this, we need to "noUnderflow" bitmaps, which specify where '1's should
+         even be possible after performing a shift operation.
+         
+                One Shift           Two Shifts         Four Shifts
+              0 0 0 0 0 0 0       0 0 0 0 0 0 0       0 0 0 0 0 0 0
+              1 1 1 1 1 1 1       0 0 0 0 0 0 0       0 0 0 0 0 0 0
+              1 1 1 1 1 1 1       1 1 1 1 1 1 1       0 0 0 0 0 0 0
+              1 1 1 1 1 1 1  ->   1 1 1 1 1 1 1  ->   0 0 0 0 0 0 0
+              1 1 1 1 1 1 1       1 1 1 1 1 1 1       1 1 1 1 1 1 1
+              1 1 1 1 1 1 1       1 1 1 1 1 1 1       1 1 1 1 1 1 1
+              1 1 1 1 1 1 1       1 1 1 1 1 1 1       1 1 1 1 1 1 1 */
         mask = key;
 
         for (int shift = 1; shift <= HEIGHT; shift <<= 1) {

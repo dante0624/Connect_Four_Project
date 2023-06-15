@@ -7,8 +7,6 @@ import java.io.IOException;
 // https://github.com/SvenWoltmann/binary-tree
 public class AVLTreeWriter extends Tree {
 
-    // Private Interface
-    // Simple getter
     // Necessary because we define the "height" of a null node to be -1
     private int getHeight(TreeNode node) {
         if (node != null) {
@@ -17,14 +15,11 @@ public class AVLTreeWriter extends Tree {
         return -1;
     }
 
-    // Gets the balance factor of a given node
     private int balanceFactor(TreeNode node){
         return getHeight(node.right) - getHeight(node.left);
     }
 
-    // Update's the height of a node based on the height of its two children
-    // It assumes that the height of the children are currently accurate
-    // We assume this because we call whenever we insert or rotate
+    // This assumes that the height of the children are currently accurate
     private void updateHeight(TreeNode node) {
         int leftHeight = getHeight(node.left);
         int rightHeight = getHeight(node.right);
@@ -36,10 +31,10 @@ public class AVLTreeWriter extends Tree {
         }
     }
 
-    // Performs a right rotation and updates heights
-    // Also returns the new node where the old one used to be
-    // Necessary, because the parent of node will now point to the wrong thing
-    // This needs to be updated via the return value
+    /* Performs a right rotation and updates heights
+    Also returns the new node where the old one used to be
+    Necessary, because the parent of node will now point to the wrong thing
+    This needs to be updated via the return value */
     private TreeNode rotateRight(TreeNode node) {
         TreeNode leftChild = node.left;
 
@@ -72,22 +67,16 @@ public class AVLTreeWriter extends Tree {
         // Left-heavy?
         if (balanceFactor < -1) {
             if (balanceFactor(node.left) > 0) {
-                // Rotate left-right
                 node.left = rotateLeft(node.left);
             }
-
-            // Rotate right
             node = rotateRight(node);
         }
 
         // Right-heavy?
         if (balanceFactor > 1) {
             if (balanceFactor(node.right) < 0) {
-                // Rotate right-left
                 node.right = rotateRight(node.right);
             }
-
-            // Rotate left
             node = rotateLeft(node);
         }
 
@@ -128,7 +117,6 @@ public class AVLTreeWriter extends Tree {
     }
 
 
-    // Public Interface
     // Insert Node helper
     public TreeNode insertNodeHelper(long key, byte value, TreeNode node) {
         node = super.insertNodeHelper(key, value, node);

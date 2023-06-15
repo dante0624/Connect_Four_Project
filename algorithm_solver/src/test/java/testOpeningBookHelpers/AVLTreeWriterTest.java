@@ -15,10 +15,8 @@ import java.nio.file.Path;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class AVLTreeWriterTest {
-    // Class variables for testing insertion
     AVLTreeWriter treeWriter;
 
-    // Class variables for writing to a file
     Path path;
     File file;
     FileOutputStream out;
@@ -30,9 +28,9 @@ public class AVLTreeWriterTest {
     @TempDir
     Path tempDir;
 
-    // Helper methods for checking if trees are equivalent
-    // Check if nodes are equal based on their key, value, and height attributes
-    // Assume that we are calling on non-null nodes
+    /* Helper methods for checking if trees are equivalent
+    Check if nodes are equal based on their key, value, and height attributes
+    Assume that we are calling on non-null nodes */
     private boolean nodeEquality(TreeNode node1, TreeNode node2) {
         return node1.key == node2.key &&
                 node1.value == node2.value &&
@@ -42,11 +40,9 @@ public class AVLTreeWriterTest {
     // Checks if entire subtrees are equal based on each of their key, value, and height attributes
     // Uses simply recursion
     private boolean treeEquality(TreeNode node1, TreeNode node2) {
-        // Edge case of both null subtrees
         if (node1 == null && node2 == null) {
             return true;
         }
-        // Edge case where one, but not both, are null
         if (node1 == null || node2 == null) {
             return false;
         }

@@ -11,12 +11,6 @@ import liveSolverClasses.Solver;
 import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
-// We have 5 asserts we can use now
-// assertEquals
-// assertTrue
-// assertFalse
-// assertNotNull
-// assertNull
 
 public class SolverTest {
     // Global information about this test
