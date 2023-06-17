@@ -14,7 +14,6 @@ import java.util.HashSet;
 
 // Serializes a transposition table after solving several positions up to a max depth
 public class TransTableSerializer {
-    final static String resourcesFolder = "src/main/resources/transTableSerialized";
     final static int maxDepth = 1;
 
     public static void main(String[] args) throws IOException {
@@ -29,18 +28,11 @@ public class TransTableSerializer {
         ArrayList<Position> currPositions = new ArrayList<>();
         currPositions.add(blankPosition);
 
-        String rootDir = System.getProperty("user.dir");
-        Path pathToRoot = Paths.get(rootDir);
-        assert "algorithm_solver".equals(pathToRoot.getFileName().toString());
-
         for (int depth = 0; depth <= maxDepth; depth++) {
             String keysFileName = "depth"+depth+"Keys.ser";
             String evalsFileName = "depth"+depth+"Evals.ser";
-            Path keysPath = Paths.get(rootDir, resourcesFolder, keysFileName);
-            Path evalPath = Paths.get(rootDir, resourcesFolder, evalsFileName);
-
-            ObjectOutputStream outKeys = new ObjectOutputStream(new FileOutputStream(keysPath.toString()));
-            ObjectOutputStream outEvals = new ObjectOutputStream(new FileOutputStream(evalPath.toString()));
+            Path keysPath = Paths.get(Utils.getProjectRoot(), Utils.tableResources, keysFileName);
+            Path evalPath = Paths.get(Utils.getProjectRoot(), Utils.tableResources, evalsFileName);
 
             ArrayList<Position> nextPositions = new ArrayList<>();
             HashSet<Long> nextPositionKeys = new HashSet<>();
@@ -65,10 +57,12 @@ public class TransTableSerializer {
                 }
             }
 
+            ObjectOutputStream outKeys = new ObjectOutputStream(new FileOutputStream(keysPath.toString()));
             outKeys.writeObject(myKeys);
             outKeys.flush();
             outKeys.close();
 
+            ObjectOutputStream outEvals = new ObjectOutputStream(new FileOutputStream(evalPath.toString()));
             outEvals.writeObject(myEvals);
             outEvals.flush();
             outEvals.close();

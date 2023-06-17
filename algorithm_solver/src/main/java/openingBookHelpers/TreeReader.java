@@ -85,16 +85,16 @@ public class TreeReader implements Iterable<Long> {
             // Ensures that negatives values are negative, and positives values are positive
             value = (currEntry[6] << 25) >> 26;
 
-            rightChildExists = (currEntry[6] & 1) == 1;
+            if (searchKey == key) {
+                bookIn.close();
+                return value;
+            }
+
             leftWeight = (int) currEntry[7] & 0xFF;
             for (int i = 8; i < 10; i++) {
                 leftWeight = (leftWeight << 8) + ((int) currEntry[i] & 0xFF);
             }
 
-            if (searchKey == key) {
-                bookIn.close();
-                return value;
-            }
 
 			// Checking left subtree just involves going to the next node
             if (searchKey < key) {
@@ -103,6 +103,8 @@ public class TreeReader implements Iterable<Long> {
                 }
                 continue;
             }
+
+            rightChildExists = (currEntry[6] & 1) == 1;
 
 			// Checking right subtree involves skipping the entire left subtree
             if (!rightChildExists) {

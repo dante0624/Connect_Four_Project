@@ -11,16 +11,14 @@ import java.nio.file.Path;
 // Analyzes serialized transposition tables up to a max depth for percent utilization
 // Only really need to look at the evals, because this will be zero if unused and nonzero if used.
 public class TransTableAnalyzer {
-    final static String resourcesFolder = "src/main/resources/transTableSerialized";
     final static int maxDepth = 1;
 
     public static void main(String[] args) throws IOException, ClassNotFoundException {
         byte[] serializedEvals;
-        String rootDir = System.getProperty("user.dir");
 
         for (int depth = 0; depth <= maxDepth; depth++) {
             String evalsFileName = "depth"+depth+"Evals.ser";
-            Path evalPath = Paths.get(rootDir, resourcesFolder, evalsFileName);
+            Path evalPath = Paths.get(Utils.getProjectRoot(), Utils.tableResources, evalsFileName);
 
             ObjectInputStream inEvals = new ObjectInputStream(new FileInputStream(evalPath.toString()));
             serializedEvals = (byte[]) inEvals.readObject();

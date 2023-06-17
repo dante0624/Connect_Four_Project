@@ -2,29 +2,22 @@ package openingBookHelpers;
 
 import liveSolverClasses.Position;
 import liveSolverClasses.Solver;
+import serializationHelpers.Utils;
 
-import java.io.*;
-import java.nio.file.Path;
+import java.io.File;
+import java.io.IOException;
+import java.io.FileOutputStream;
 import java.nio.file.Paths;
 import java.util.HashSet;
 
 public class BookMaker {
-    final static String resourcesFolder = "src/main/resources/openingBook";
-    static String rootDir;
-
-    // This only opens the output stream
-    private static FileOutputStream openStream(int depth) throws FileNotFoundException {
+    private static File findFile(int depth) {
         String fileName = "depth" + depth + "Book.bin";
-        Path filePath = Paths.get(rootDir, resourcesFolder, fileName);
-        return new FileOutputStream(filePath.toString());
+        return Paths.get(Utils.getProjectRoot(), Utils.bookResources, fileName).toFile();
     }
 
     // Takes the desired depth as a command line argument
     public static void main(String[] args) throws IOException {
-        rootDir = System.getProperty("user.dir");
-        Path pathToRoot = Paths.get(rootDir);
-        assert "algorithm_solver".equals(pathToRoot.getFileName().toString());
-
         assert args.length == 1;
         int depth = Integer.parseInt(args[0]);
 
@@ -32,7 +25,6 @@ public class BookMaker {
 
         Solver solver = new Solver();
         AVLTreeWriter treeWriter = new AVLTreeWriter();
-        FileOutputStream out = openStream(depth);
 
         // Depth = 0 is a special case because there is no prior file
         if (depth == 0) {
@@ -43,9 +35,7 @@ public class BookMaker {
 
 		// We have depth > 0, so we need to read from the previous file
         else {
-            String fileName = "depth" + (depth - 1) + "Book.bin";
-            Path filePath = Paths.get(rootDir, resourcesFolder, fileName);
-            TreeReader reader = new TreeReader(filePath.toFile());
+            TreeReader reader = new TreeReader(findFile(depth - 1));
             HashSet<Long> solvedKeys = new HashSet<>();
 
             for (long key: reader) {
@@ -77,6 +67,7 @@ public class BookMaker {
             }
         }
 
+		FileOutputStream out = new FileOutputStream(findFile(depth));
         treeWriter.writeContent(out);
         out.close();
 
