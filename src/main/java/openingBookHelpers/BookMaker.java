@@ -2,7 +2,7 @@ package openingBookHelpers;
 
 import liveSolverClasses.Position;
 import liveSolverClasses.Solver;
-import serializationHelpers.Utils;
+import miscHelpers.Utils;
 
 import java.io.File;
 import java.io.IOException;

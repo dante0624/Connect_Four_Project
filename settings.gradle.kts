@@ -12,5 +12,5 @@ plugins {
     id("org.gradle.toolchains.foojay-resolver-convention") version "0.4.0"
 }
 
-rootProject.name = "algorithm_solver"
+rootProject.name = "Connect_Four_Project"
 

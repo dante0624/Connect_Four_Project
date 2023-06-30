@@ -1,10 +1,10 @@
-package serializationHelpers;
+package miscHelpers;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class Utils {
-	final public static String projectFolder = "algorithm_solver";
+	final public static String projectFolder = "Connect_Four_Project";
 	final public static String bookResources = "src/main/resources/openingBook";
 	final public static String tableResources = "src/main/resources/transTableSerialized";
     final public static String testResources = "src/test/resources";

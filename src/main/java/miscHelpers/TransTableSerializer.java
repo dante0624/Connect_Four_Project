@@ -1,4 +1,4 @@
-package serializationHelpers;
+package miscHelpers;
 
 import liveSolverClasses.Position;
 import liveSolverClasses.Solver;

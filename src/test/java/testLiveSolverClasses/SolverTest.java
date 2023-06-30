@@ -8,7 +8,7 @@ import java.io.FileNotFoundException;
 
 import liveSolverClasses.Position;
 import liveSolverClasses.Solver;
-import serializationHelpers.Utils;
+import miscHelpers.Utils;
 
 import org.junit.jupiter.api.*;
 

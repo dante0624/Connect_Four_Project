@@ -8,13 +8,14 @@ import java.io.FileNotFoundException;
 
 import liveSolverClasses.Position;
 import liveSolverClasses.Solver;
-import serializationHelpers.Utils;
+import miscHelpers.Utils;
+
 import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class BeginEasyTest {
-    final static String testFile = "beginEasyTests.txt";
+public class BeginHardTest {
+    final static String testFile = "beginHardTests.txt";
     final static int numTests = 1000;
 
 
