@@ -8,11 +8,12 @@ import com.sun.net.httpserver.HttpHandler;
 
 public class SolveHandler implements HttpHandler {
 	public void handle(HttpExchange httpExchange) throws IOException {
-		System.out.println("SolveHandler reading a response:");
-		System.out.println(Server.readRequest(httpExchange));
+		Server.readRequest(httpExchange);
+
 		// TODO: Make this take in one parameter, which contains the current position
 		// Then make it solve the position, and send back a complex JSON object
 		// This respose is temporary, delete later
+		// Also delete Server.queryToMap. We only expect one paramter (position) so this is extra
 		StringBuilder response = new StringBuilder();
 		Map <String,String>parms = Server.queryToMap(httpExchange.getRequestURI().getQuery());
 		response.append("<html><body>");

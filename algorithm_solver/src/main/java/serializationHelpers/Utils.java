@@ -8,6 +8,7 @@ public class Utils {
 	final public static String bookResources = "src/main/resources/openingBook";
 	final public static String tableResources = "src/main/resources/transTableSerialized";
     final public static String testResources = "src/test/resources";
+	final public static String frontEndResources = "src/main/resources/frontEnd";
 
 	public static String getProjectRoot() {
 		Path path = Paths.get(System.getProperty("user.dir"));

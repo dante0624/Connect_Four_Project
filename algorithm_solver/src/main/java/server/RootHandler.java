@@ -1,19 +1,29 @@
 package server;
 
+import serializationHelpers.Utils;
+
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Paths;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 
 public class RootHandler implements HttpHandler {
 	public void handle(HttpExchange httpExchange) throws IOException {
-		System.out.println("RootHandler reading a response:");
-		System.out.println(Server.readRequest(httpExchange));
-		// TODO: Make this send over the complete HTML, CSS, JS file for the client
-		// This response is temporary, delete later
-		String response = "Use /solve/?hello=word&foo=bar to see how to handle url parameters";
-		Server.writeResponse(httpExchange, response.toString());
-		
-		System.out.println("RootHandler sent a response");
+		Server.readRequest(httpExchange);
+
+		// Get Path ignores queries (?) and fragments (#)
+		String uriPath = httpExchange.getRequestURI().getPath();
+
+		if (uriPath.equals("/")) {
+			uriPath = "/index.html";
+		}
+
+		System.out.print("RootHandler handling the uri path ");
+		System.out.println(uriPath);
+
+		File file = Paths.get(Utils.getProjectRoot(), Utils.frontEndResources, uriPath).toFile();
+		Server.writeResponse(httpExchange, file);
 	}
 }
