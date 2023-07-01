@@ -43,7 +43,7 @@ main {
 	display: flex;
 	flex-direction: column;
 	width: 35%;
-	margin: 10px 0px;
+	margin: 10px 0px 15px 0px;
 }
 .control-description {
 	border: 1px solid;
@@ -71,7 +71,7 @@ main {
 }
 .main-content-wrapper {
 	width: 45%;
-	margin: 10px 0px;
+	margin: 10px 0px 15px 0px;
 }
 .main-content {
 	width: fit-content;
@@ -123,7 +123,6 @@ main {
 .position-evaluation {
 	text-align: center;
 	font-size: 0.75rem;
-	margin-top: 15px;
 }
 footer {
 	display: flex;
@@ -156,6 +155,7 @@ footer {
 	.side-content-wrapper {
 		flex-direction: column-reverse;
 		width: 75%;
+		margin-top: 15px;
 	}
 	.main-content-wrapper {
 		width: fit-content;
@@ -172,6 +172,9 @@ footer {
 	.grid-cell {
 		width: 9vw;
 		height: 9vw;
+	}
+	h1 {
+		font-size: 1.2rem;
 	}
 	h2 {
 		font-size: 1rem;
