@@ -82,36 +82,37 @@ main {
 	width: 100%;
 	display: flex;
 	justify-content: space-around;
-	height: 5vw;
+	height: 5.2vw;
 }
 .drop-option {
 	display: flex;
 	justify-content: center;
 	align-items: center;
 	background-image: url(redChip.svg);
-	background-position: center;
-	background-size: 100% 100%;
-	width: 5vw;
-	height: 5vw;
+	width: 5.2vw;
+	height: 5.2vw;
 	font-size: 0.75rem;
+	margin: 0px -2px;
 }
 .game-square {
-	border: 1px solid;
 	margin: 0px auto 0px auto;
 	box-shadow: 5px 10px 20px rgba(0,0,0,0.19), 2px 6px 6px rgba(0,0,0,0.23);
+	width: fit-content;
 }
 .game-grid {
 	display: grid;
 	grid-template-columns: repeat(7, 1fr);
 	grid-template-rows: repeat(6, 1fr);
+	border: 3px solid black;
 }
 .grid-cell {
-	width: 5vw;
-	height: 5vw;
+	width: 5.2vw;
+	height: 5.2vw;
 	background-image: url(gridFrame.svg);
 	border-style: solid;
 	border-color: black;
 	border-width: 1px;
+	margin: -2px;
 }
 .cell{
 	width: 100%;
@@ -147,14 +148,14 @@ footer {
 /* These apply when the resolution is closer to 'portrait' */
 @media (max-aspect-ratio: 4/3) {
 	html, body {
-		font-size: 3vw;
+		font-size: 6vw;
 	}
 	main {
 		flex-direction: column-reverse;
 	}
 	.side-content-wrapper {
 		flex-direction: column-reverse;
-		width: 75%;
+		width: 90%;
 		margin-top: 15px;
 	}
 	.main-content-wrapper {
@@ -162,31 +163,18 @@ footer {
 		margin-bottom: 0;
 	}
 	.chip-dropper {
-		height: 9vw;
+		height: 12vw;
 	}
 	.drop-option {
-		width: 9vw;
-		height: 9vw;
-		font-size: 1rem;
+		width: 12vw;
+		height: 12vw;
 	}
 	.grid-cell {
-		width: 9vw;
-		height: 9vw;
+		width: 12vw;
+		height: 12vw;
 	}
-	h1 {
-		font-size: 1.2rem;
-	}
-	h2 {
-		font-size: 1rem;
-	}
-	p {
-		font-size: 0.8rem;
-	}
-	.button {
-		font-size: 1rem;
-	}
-	.position-evaluation {
-		font-size: 1rem;
+	.self-plug {
+		font-size: 2vw;
 	}
 }
 

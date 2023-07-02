@@ -15,7 +15,7 @@ import com.sun.net.httpserver.HttpServer;
 
 
 public class Server {
-	public static final int PORT = 8000;
+	public static final int PORT = 80;
 	public static final int OK_STATUS = 200;
 
 	public static String readRequest(HttpExchange httpExchange) throws IOException {
