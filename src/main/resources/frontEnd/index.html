@@ -2,8 +2,12 @@
 <html lang="en">
 
 <head>
-<title>Connect Four Project</title>
-<link rel="stylesheet" type="text/css" href="mystyle.css">
+	<title>Connect Four Project</title>
+	<link rel="preload" href="gridFrame.svg" as="image" type="image/svg+xml" />
+	<link rel="preload" href="redChip.svg" as="image" type="image/svg+xml" />
+	<link rel="preload" href="yellowChip.svg" as="image" type="image/svg+xml" />
+	<link rel="stylesheet" type="text/css" href="mystyle.css">
+	<script src="scripts/myScript.js"></script>
 </head>
 
 <body>
@@ -33,59 +37,69 @@
 		<div class="main-content-wrapper">
 			<div class="main-content">
 				<div class="chip-dropper">
-					<div class="drop-option" id="option-0">0</div>
-					<div class="drop-option" id="option-1">1</div>
-					<div class="drop-option" id="option-2">2</div>
-					<div class="drop-option" id="option-3">3</div>
-					<div class="drop-option" id="option-4">4</div>
-					<div class="drop-option" id="option-5">5</div>
-					<div class="drop-option" id="option-6">6</div>
+					<div class="drop-option">0</div>
+					<div class="drop-option">1</div>
+					<div class="drop-option">2</div>
+					<div class="drop-option">3</div>
+					<div class="drop-option">4</div>
+					<div class="drop-option">5</div>
+					<div class="drop-option">6</div>
+					<div class="tmp-drop" id="tmp-drop"></div>
 				</div>
 				<div class="game-square">
 					<div class="game-grid">
-						<div class="grid-cell"><div class="cell" id="cell-35"></div></div>
-						<div class="grid-cell"><div class="cell" id="cell-36"></div></div>
-						<div class="grid-cell"><div class="cell" id="cell-37"></div></div>
-						<div class="grid-cell"><div class="cell" id="cell-38"></div></div>
-						<div class="grid-cell"><div class="cell" id="cell-39"></div></div>
-						<div class="grid-cell"><div class="cell" id="cell-40"></div></div>
-						<div class="grid-cell"><div class="cell" id="cell-41"></div></div>
-						<div class="grid-cell"><div class="cell" id="cell-28"></div></div>
-						<div class="grid-cell"><div class="cell" id="cell-29"></div></div>
-						<div class="grid-cell"><div class="cell" id="cell-30"></div></div>
-						<div class="grid-cell"><div class="cell" id="cell-31"></div></div>
-						<div class="grid-cell"><div class="cell" id="cell-32"></div></div>
-						<div class="grid-cell"><div class="cell" id="cell-33"></div></div>
-						<div class="grid-cell"><div class="cell" id="cell-34"></div></div>
-						<div class="grid-cell"><div class="cell" id="cell-21"></div></div>
-						<div class="grid-cell"><div class="cell" id="cell-22"></div></div>
-						<div class="grid-cell"><div class="cell" id="cell-23"></div></div>
-						<div class="grid-cell"><div class="cell" id="cell-24"></div></div>
-						<div class="grid-cell"><div class="cell" id="cell-25"></div></div>
-						<div class="grid-cell"><div class="cell" id="cell-26"></div></div>
-						<div class="grid-cell"><div class="cell" id="cell-27"></div></div>
-						<div class="grid-cell"><div class="cell" id="cell-14"></div></div>
-						<div class="grid-cell"><div class="cell" id="cell-15"></div></div>
-						<div class="grid-cell"><div class="cell" id="cell-16"></div></div>
-						<div class="grid-cell"><div class="cell" id="cell-17"></div></div>
-						<div class="grid-cell"><div class="cell" id="cell-18"></div></div>
-						<div class="grid-cell"><div class="cell" id="cell-19"></div></div>
-						<div class="grid-cell"><div class="cell" id="cell-20"></div></div>
-						<div class="grid-cell"><div class="cell" id="cell-7"></div></div>
-						<div class="grid-cell"><div class="cell" id="cell-8"></div></div>
-						<div class="grid-cell"><div class="cell" id="cell-9"></div></div>
-						<div class="grid-cell"><div class="cell" id="cell-10"></div></div>
-						<div class="grid-cell"><div class="cell" id="cell-11"></div></div>
-						<div class="grid-cell"><div class="cell" id="cell-12"></div></div>
-						<div class="grid-cell"><div class="cell" id="cell-13"></div></div>
-						<div class="grid-cell"><div class="cell" id="cell-0"></div></div>
-						<div class="grid-cell"><div class="cell" id="cell-1"></div></div>
-						<div class="grid-cell"><div class="cell" id="cell-2"></div></div>
-						<div class="grid-cell"><div class="cell" id="cell-3"></div></div>
-						<div class="grid-cell"><div class="cell" id="cell-4"></div></div>
-						<div class="grid-cell"><div class="cell" id="cell-5"></div></div>
-						<div class="grid-cell"><div class="cell" id="cell-6"></div></div>
+						<div class="grid-cell"><div class="cell"></div></div>
+						<div class="grid-cell"><div class="cell"></div></div>
+						<div class="grid-cell"><div class="cell"></div></div>
+						<div class="grid-cell"><div class="cell"></div></div>
+						<div class="grid-cell"><div class="cell"></div></div>
+						<div class="grid-cell"><div class="cell"></div></div>
+						<div class="grid-cell"><div class="cell"></div></div>
+						<div class="grid-cell"><div class="cell"></div></div>
+						<div class="grid-cell"><div class="cell"></div></div>
+						<div class="grid-cell"><div class="cell"></div></div>
+						<div class="grid-cell"><div class="cell"></div></div>
+						<div class="grid-cell"><div class="cell"></div></div>
+						<div class="grid-cell"><div class="cell"></div></div>
+						<div class="grid-cell"><div class="cell"></div></div>
+						<div class="grid-cell"><div class="cell"></div></div>
+						<div class="grid-cell"><div class="cell"></div></div>
+						<div class="grid-cell"><div class="cell"></div></div>
+						<div class="grid-cell"><div class="cell"></div></div>
+						<div class="grid-cell"><div class="cell"></div></div>
+						<div class="grid-cell"><div class="cell"></div></div>
+						<div class="grid-cell"><div class="cell"></div></div>
+						<div class="grid-cell"><div class="cell"></div></div>
+						<div class="grid-cell"><div class="cell"></div></div>
+						<div class="grid-cell"><div class="cell"></div></div>
+						<div class="grid-cell"><div class="cell"></div></div>
+						<div class="grid-cell"><div class="cell"></div></div>
+						<div class="grid-cell"><div class="cell"></div></div>
+						<div class="grid-cell"><div class="cell"></div></div>
+						<div class="grid-cell"><div class="cell"></div></div>
+						<div class="grid-cell"><div class="cell"></div></div>
+						<div class="grid-cell"><div class="cell"></div></div>
+						<div class="grid-cell"><div class="cell"></div></div>
+						<div class="grid-cell"><div class="cell"></div></div>
+						<div class="grid-cell"><div class="cell"></div></div>
+						<div class="grid-cell"><div class="cell"></div></div>
+						<div class="grid-cell"><div class="cell"></div></div>
+						<div class="grid-cell"><div class="cell"></div></div>
+						<div class="grid-cell"><div class="cell"></div></div>
+						<div class="grid-cell"><div class="cell"></div></div>
+						<div class="grid-cell"><div class="cell"></div></div>
+						<div class="grid-cell"><div class="cell"></div></div>
+						<div class="grid-cell"><div class="cell"></div></div>
 					</div>
+				</div>
+				<div class="invisible-buttons">
+					<div class="drop-button"></div>
+					<div class="drop-button"></div>
+					<div class="drop-button"></div>
+					<div class="drop-button"></div>
+					<div class="drop-button"></div>
+					<div class="drop-button"></div>
+					<div class="drop-button"></div>
 				</div>
 			</div>
 		</div>

@@ -9,6 +9,9 @@
 *.project
 *.settings/
 
+# Javascript LSP config file. Good for NVIM and VSCode
+*jsconfig.json
+
 # Gradle project-specific cache directory
 *.gradle
 
