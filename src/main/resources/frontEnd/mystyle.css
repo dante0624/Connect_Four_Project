@@ -147,6 +147,7 @@ main {
 	width: 5.2vw;
 	margin: 0px -2px;
 	z-index: 1;
+	cursor: pointer;
 }
 .position-evaluation {
 	text-align: center;
@@ -212,3 +213,10 @@ footer {
 	}
 }
 
+/* Only applies when "hovering" is supported, i.e. not on mobile */
+@media (hover: hover) {
+	.text-focus { /* Javascript adds and removes this class as needed */
+		color: white;
+		font-size: 0.85rem;
+	}
+}

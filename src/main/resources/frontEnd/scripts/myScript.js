@@ -23,9 +23,9 @@ function getChip(color) {
 	}
 	return "url(yellowChip.svg)";
 }
-function getTopCellIndex(col) {
-	const rowFromTop = HEIGHT - gameGrid[col].length;
-	return rowFromTop * WIDTH + col;
+function getTopCellIndex(colIndex) {
+	const rowFromTop = HEIGHT - gameGrid[colIndex].length;
+	return rowFromTop * WIDTH + colIndex;
 }
 
 
@@ -36,11 +36,11 @@ let animateID;
 
 function setDropOptionColors() {
 	for (const option of dropOptions) {
-		option["style"]["backgroundImage"] = getChip(currPlayer);
+		option.style.backgroundImage = getChip(currPlayer);
 	}
 }
 
-function playCol(col) {
+function playCol(colIndex) {
 	if (animateID) {
 		clearInterval(animateID);
 
@@ -50,33 +50,33 @@ function playCol(col) {
 		afterAnimation(cellIndex, currPlayer * -1);
 	}
 
-	moveHistory.push(col);
-	gameGrid[col].push(currPlayer);
+	moveHistory.push(colIndex);
+	gameGrid[colIndex].push(currPlayer);
 	changePlayer()
 
-	prepareAnimate(col, currPlayer * -1);
+	prepareAnimate(colIndex, currPlayer * -1);
 }
 
 // Color is the color of the temporary chip, and the chip at the bottom
-function prepareAnimate(col, color) {
+function prepareAnimate(colIndex, color) {
 	// Turn off drop evaluations
 	for (const option of dropOptions) {
 		option.innerHTML = "";
 	}
 
 	// Make tmp chip appear over the correct column
-	const startX = dropOptions[col]["offsetLeft"];
-	const startY = dropOptions[col]["offsetTop"];
-	tmpDrop.style.left = startX + 'px';
-	tmpDrop.style.top = startY + 'px';
-	tmpDrop.style["backgroundImage"] = getChip(color);
+	const startX = dropOptions[colIndex].offsetLeft;
+	const startY = dropOptions[colIndex].offsetTop;
+	tmpDrop.style.left = `${startX}px`;
+	tmpDrop.style.top = `${startY}px`;
+	tmpDrop.style.backgroundImage = getChip(color);
 
 	// Change drop options colors and load next evaluations
 	nextDropOptions();
 
 	// Calculate the fall
-	const animationDuration = (HEIGHT - gameGrid[col].length + 1) * MILLISEC_PER_CELL;
-	const cellIndex = getTopCellIndex(col);
+	const animationDuration = (HEIGHT - gameGrid[colIndex].length + 1) * MILLISEC_PER_CELL;
+	const cellIndex = getTopCellIndex(colIndex);
 	const endSquare = cells[cellIndex];
 	const endY = endSquare.offsetTop;
 	const deltaY = (endY - startY) * REFRESH_RATE_MILLISEC / animationDuration;
@@ -93,7 +93,7 @@ function prepareAnimate(col, color) {
 		}
 		else {
 			animateY += deltaY;
-			tmpDrop.style.top = animateY + 'px';
+			tmpDrop.style.top = `${animateY}px`;
 		}
 	}
 }
@@ -146,8 +146,15 @@ function clear() {
 	setDropOptionColors();
 }
 
+function textFocus(colIndex) {
+	dropOptions[colIndex].classList.add("text-focus");
+}
+function textRemoveFocus(colIndex) {
+	dropOptions[colIndex].classList.remove("text-focus");
+}
+
 document.addEventListener('DOMContentLoaded', () => {
-	dropOptions = document.getElementsByClassName("drop-option")
+	dropOptions = document.getElementsByClassName("drop-option");
  	tmpDrop = document.getElementById("tmp-drop");
 	cells = document.getElementsByClassName("cell");
 	animateID = null;
@@ -155,15 +162,16 @@ document.addEventListener('DOMContentLoaded', () => {
 	const dropButtons = document.getElementsByClassName("drop-button");
 	document.getElementById("back-button").onclick = back;
 	document.getElementById("clear-button").onclick = clear;
-	for (let i = 0; i < WIDTH; i++) {
-		dropButtons[i].setAttribute("onclick", "playCol(" + i + ");")
+	for (const [colIndex, dropButton] of Array.from(dropButtons).entries()) {
+		dropButton.setAttribute("onclick", `playCol(${colIndex});`);
+		dropButton.setAttribute("onmouseover", `textFocus(${colIndex});`);
+		dropButton.setAttribute("onmouseout", `textRemoveFocus(${colIndex});`);
 	}
 
 	for (const dropOption of dropOptions) {
 		dropOption.style.backgroundImage = getChip(STARTING_PLAYER);
 	}
+
 	currPlayer = STARTING_PLAYER;
-
-
 });
 
