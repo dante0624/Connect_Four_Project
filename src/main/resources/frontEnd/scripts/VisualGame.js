@@ -5,22 +5,28 @@ const REFRESH_RATE_MILLISEC = 33;
 const PLAYER_CHIPS = ["url(redChip.svg)",  "url(yellowChip.svg)"];
 
 // Helper class exists to ensure that animation is always in a valid state
+// Either both attributes exist, or neither exist
 class AnimationState {
 	constructor() {
 		this.animateID = undefined;
 		this.afterAnimation = null;
 	}
-	isAnimating() {
-		return !!this.animateID;
-	}
 	startAnimation(animationFunction, afterAnimation) {
 		this.animateID = setInterval(animationFunction, REFRESH_RATE_MILLISEC);
 		this.afterAnimation = afterAnimation;
 	}
+	// Ends an animation and jumps to the afterAnimation if it exists
+	// Can safely call this, as it does nothing if no animation is active
 	endAnimation() {
-		clearInterval(this.animateID);
+		// Note that calls to setInterval always return nonzero "truthy" values
+		if (this.animateID) {
+			clearInterval(this.animateID);
+		}
 		this.animateID = undefined;
-		this.afterAnimation();
+
+		if (this.afterAnimation) {
+			this.afterAnimation();
+		}
 		this.afterAnimation = null;
 	}
 }
@@ -51,14 +57,12 @@ export class VisualGame {
 
 		// Update the game state and check move validity
 		const cellIndex = this.gameState.playCol(colIndex);
-		if (!cellIndex) {
+		if (cellIndex === undefined) {
 			return;
 		}
 
 		// Cancel jump to finishing prior animation if it is still going
-		if (this.animationState.isAnimating()) {
-			this.animationState.endAnimation();
-		}
+		this.animationState.endAnimation();
 
 		// Turn off drop evaluations
 		for (const option of this.dropOptions) {
@@ -101,13 +105,15 @@ export class VisualGame {
 		this.animationState.startAnimation(animationFunction, afterAnimation);
 	}
 	back() {
+		this.animationState.endAnimation();
 		const cellIndex = this.gameState.back();
-		if (cellIndex) {
+		if (cellIndex !== undefined) {
 			this.cells[cellIndex].style.backgroundImage = null;
 			this.setDropOptionColors();
 		}
 	}
 	clear() {
+		this.animationState.endAnimation();
 		const cellIndicies = this.gameState.clear();
 		for (const cellIndex of cellIndicies) {
 			this.cells[cellIndex].style.backgroundImage = null;
