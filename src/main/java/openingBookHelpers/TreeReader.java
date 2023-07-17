@@ -3,7 +3,11 @@ package openingBookHelpers;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.Iterator;
+import java.util.Arrays;
+
+import miscHelpers.Utils;
 
 /* Class takes in a serialized tree as a File object in its constructor.
    Class supports get and iterate methods.
@@ -159,6 +163,30 @@ public class TreeReader implements Iterable<Long> {
             }
         };
     }
+
+	// Returns the maximum depth of book that has been solved, and all depths below have also been solved
+	// So a return value of 11 indicates that all books (0-11) have been solved, but 12 has not
+	// Returns -1 if depth 0 has not been solved
+	public static int getMaxBookDepth() {
+        File books = Paths.get(Utils.getProjectRoot(), Utils.bookResources).toFile();
+		String[] fileNames = books.list();
+		int[] depths = new int[fileNames.length];
+		for (int i = 0; i < fileNames.length; i++) {
+			depths[i] = Integer.parseInt(fileNames[i].replaceAll("[^0-9]", ""));
+		}
+		Arrays.sort(depths);
+
+		int maxDepth = -1;
+		for (int depth: depths) {
+			if (depth == maxDepth + 1) {
+				maxDepth = depth;
+			}
+			else {
+				break;
+			}
+		}
+		return maxDepth;
+	}
 
     public TreeReader(File initialFile) {
 		bookFile = initialFile;

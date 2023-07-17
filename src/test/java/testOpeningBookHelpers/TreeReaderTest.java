@@ -143,5 +143,10 @@ public class TreeReaderTest {
 
     }
 
+	@Test
+	void testGetMaxBookDepth() {
+		assertEquals(11, TreeReader.getMaxBookDepth());
+	}
+
 
 }
