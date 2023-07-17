@@ -1,6 +1,7 @@
 package testLiveSolverClasses;
 
 import liveSolverClasses.Position;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -13,27 +14,45 @@ class PositionTest {
     Position complexPosition;
     Position vertical;
     Position horizontal;
-
     Position diagonal1;
     Position diagonal2;
+	Position drawn;
+	Position connect20;
 
     @BeforeEach
     void setUp() {
         blankPosition = new Position();
         /* Complex Position:
-                * * 0 * * * *
-                * 1 0 1 0 0 *
-                * 1 1 1 0 0 *
-                0 1 0 0 1 0 *
-                0 0 1 0 1 1 *
-                1 0 0 1 1 0 *
-
+			* * 0 * * * *
+			* 1 0 1 0 0 *
+			* 1 1 1 0 0 *
+			0 1 0 0 1 0 *
+			0 0 1 0 1 1 *
+			1 0 0 1 1 0 *
          */
         complexPosition = new Position(0x1073228E01L, 0xF9F3EFCF87L, 29);
         vertical = new Position(0x7L, 0x387L, 6);
         horizontal = new Position(0x10204000L, 0x3060C000L, 6);
         diagonal1 = new Position(0x20A28500L, 0x30E3C781L, 14);
         diagonal2 = new Position(0x50A0A08000L, 0x478F0E0C000L, 14);
+		/* Drawn Position:
+		   0 0 0 1 0 0 1
+		   0 1 1 0 1 1 1
+		   0 0 0 1 0 0 1
+		   1 1 1 0 1 1 0
+		   1 0 0 1 0 0 0
+		   1 1 1 0 1 1 0
+		*/
+		drawn = new Position(0x1DEA54D352A46L, 0x1DEA54D352A46L, 42);
+		/* Connect 20:
+		   0 1 0 * 0 1 *
+		   0 0 1 * 1 0 0
+		   1 1 1 1 1 1 1
+		   0 0 1 1 1 0 0
+		   0 1 0 1 0 1 0
+		   1 0 0 1 0 0 1
+		*/
+		connect20 = new Position(0x58AA3008CAB6L, 0x7DFBF1EFDFBFL, 39);
     }
 
     // Tests that a position will fit into 63 (unsigned) long bits
@@ -51,6 +70,52 @@ class PositionTest {
         assertEquals(0x3FL, Position.colMask(0));
         assertEquals(0x7E00000L, Position.colMask(3));
     }
+
+	@Test
+	void testPriorPlayerHasWon() {
+		Position vertialComplexWin = new Position(complexPosition);
+		vertialComplexWin.playCol(1);
+		assertTrue(vertialComplexWin.priorPlayerHasWon());
+
+		Position horizontalComplexWin = new Position(complexPosition);
+		horizontalComplexWin.playCol(0);
+		assertTrue(horizontalComplexWin.priorPlayerHasWon());
+
+		Position diagonalComplexWin1 = new Position(complexPosition);
+		diagonalComplexWin1.playCol(4);
+		assertTrue(diagonalComplexWin1.priorPlayerHasWon());
+
+		Position diagonalComplexWin2 = new Position(complexPosition);
+		diagonalComplexWin2.playCol(6);
+		assertTrue(diagonalComplexWin2.priorPlayerHasWon());
+
+		// Now show that neither player won the complex position prior to these moves
+		assertFalse(complexPosition.priorPlayerHasWon());
+		complexPosition.playCol(3);
+		assertFalse(complexPosition.priorPlayerHasWon());
+
+		// Extra check
+		assertFalse(drawn.priorPlayerHasWon());
+	}
+
+	@Test
+	void testPriorPlayerAlignments() {
+		// Has the maximal amount of connect 3's, but no connect 4's
+		int[] noAlignments = {};
+		assertArrayEquals(noAlignments, drawn.priorPlayerAlignments());
+		
+		// Has the most amount of things connected possible
+		int[] manyAlignments = {
+			35, 14,
+			29, 15, 1,
+			23, 16, 9,
+			38, 31, 24, 17,
+			25, 18, 11,
+			33, 19, 5,
+			41, 20,
+		};
+		assertArrayEquals(manyAlignments, connect20.priorPlayerAlignments());
+	}
 
     @Test
     void testGetKey() {

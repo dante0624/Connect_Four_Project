@@ -144,6 +144,65 @@ public class Position {
         return (pairs & (pairs >> 2)) != 0;
     }
 
+	// Check to see if the person who just played a move, has won the game
+	public boolean priorPlayerHasWon() {
+		return alignment(position ^ mask);
+	}
+
+	// Returns an int[] of all indicies where an alignment occured
+	// Indicies count from top left to bottom right, moving right then down
+	public int[] priorPlayerAlignments() {
+		long alignment = 0L; // Bitmap with ones everywhere that connect 4 or more has happened
+		long pos = position ^ mask; // Flip back to the prior player within this scope
+
+        // Horizontal
+        long adjacent = pos & (pos >> (HEIGHT + 1)); // Indicates there is a chip here and 1 to the right
+		adjacent &= adjacent >> (2*(HEIGHT + 1)); // Indicates there is a chip here and all 3 right squares
+		long highlight = adjacent | (adjacent << (HEIGHT + 1)); // Start to highlight where these connect 4's are
+		highlight |= highlight << (2*(HEIGHT + 1));
+		alignment |= highlight;
+
+        // Diagonal 1, up-left to down-right
+        adjacent = pos & (pos >> HEIGHT);
+        adjacent &= adjacent >> (2 * HEIGHT);
+		highlight = adjacent | (adjacent << HEIGHT);
+		highlight |= highlight << (2 * HEIGHT);
+		alignment |= highlight;
+
+        // Diagonal 2, down-left to up-right
+        adjacent = pos & (pos >> (HEIGHT + 2));
+        adjacent &= adjacent >> (2 * (HEIGHT + 2));
+		highlight = adjacent | (adjacent << (HEIGHT + 2));
+		highlight |= highlight << (2*(HEIGHT + 2));
+		alignment |= highlight;
+
+        // Vertical
+        adjacent = pos & (pos >> 1);
+        adjacent &= adjacent >> 2;
+		highlight = adjacent | (adjacent << 1);
+		highlight |= highlight << 2;
+		alignment |= highlight;
+
+		// Convert to int[], where int is the cell index
+		int[] cellIndicies = new int[popcount(alignment)];
+		int cellIndiciesCount = 0;
+		long slidingMask = 1L;
+
+		for (int column = 0; column < Position.WIDTH; column++) {
+			for (int row = 0; row < Position.HEIGHT; row++) {
+				if ((slidingMask & alignment) != 0) {
+					cellIndicies[cellIndiciesCount] = (HEIGHT - row - 1) * WIDTH + column;
+					cellIndiciesCount++;
+				}
+
+				slidingMask <<= 1;
+			}
+
+			slidingMask <<= 1; // There is an empty bit at the top we always need to ignore
+		}
+
+		return cellIndicies;
+	}
 
     public long getKey(){
 		/* Original definition of the key was position + mask + BOTTOM_MASK
