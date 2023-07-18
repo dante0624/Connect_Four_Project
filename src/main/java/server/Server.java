@@ -7,8 +7,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.URLConnection;
-import java.util.HashMap;
-import java.util.Map;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
@@ -26,6 +24,7 @@ public class Server {
 	}
 
 	public static void writeResponse(HttpExchange httpExchange, String response) throws IOException {
+		httpExchange.getResponseHeaders().set("Content-Type", "text/plain");
 		httpExchange.sendResponseHeaders(OK_STATUS, response.length());
 		OutputStream responseStream = httpExchange.getResponseBody();
 		responseStream.write(response.getBytes());
@@ -45,20 +44,6 @@ public class Server {
 		fileStream.close();
 		responseStream.close();
 		httpExchange.close();
-	}
-
-	public static Map<String, String> queryToMap(String query){
-		Map<String, String> map = new HashMap<String, String>();
-		for (String param : query.split("&")) {
-			String pair[] = param.split("=");
-			if (pair.length>1) {
-				map.put(pair[0], pair[1]);
-			}
-			else {
-				map.put(pair[0], "");
-			}
-		}
-		return map;
 	}
 
 	public static void main(String[] args) throws Exception {
