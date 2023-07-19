@@ -3,6 +3,15 @@ import { GameState } from "./GameState.js";
 const MAX_ANIMATION_TIME_MS = 650;
 const REFRESH_RATE_MILLISEC = 33;
 const PLAYER_CHIPS = ["url(redChip.svg)",  "url(yellowChip.svg)"];
+const PLAYER_COLORS = ["Red", "Yellow"];
+const GAME_IS_DRAW = "The Game is a Draw";
+const GAME_WILL_DRAW = "Both Players Can Force a Draw";
+function evaluationMessage(playerIndex, movesUntilWin) {
+	return `${PLAYER_COLORS[playerIndex]} Can Force a Win in ${movesUntilWin} Moves`;
+}
+function victoryMessage(playerIndex) {
+	return `${PLAYER_COLORS[playerIndex]} Has Won`;
+}
 
 // Helper class exists to ensure that animation is always in a valid state
 // Either both attributes exist, or neither exist
@@ -32,23 +41,24 @@ class AnimationState {
 }
 
 export class VisualGame {
-	constructor(width, height, dropOptions, tmpDrop, cells) {
+	constructor(width, height, dropOptions, tmpDrop, cells, evalBox, gameReadyCallback) {
 		this.dropOptions = dropOptions;
 		this.tmpDrop = tmpDrop;
 		this.cells = cells;
+		this.evaluationBox = evalBox;
 
-		this.gameState = new GameState(width, height);
+		this.gameState = new GameState(width, height, gameReadyCallback);
 		this.animationState = new AnimationState();
 		this.millisecPerCell = MAX_ANIMATION_TIME_MS / height;
+
+		this.totalCells = width * height;
 	}
 
-	getPlayerChip() {
-		return PLAYER_CHIPS[(this.gameState.playerOneTurn() ? 0 : 1)];
+	getPlayerIndex() {
+		return this.gameState.playerOneTurn() ? 0 : 1;
 	}
-	setDropOptionColors() {
-		for (const option of this.dropOptions) {
-			option.style.backgroundImage = this.getPlayerChip();
-		}
+	getPlayerChip() {
+		return PLAYER_CHIPS[this.getPlayerIndex()];
 	}
 
 	playCol(colIndex) {
@@ -76,9 +86,8 @@ export class VisualGame {
 		this.tmpDrop.style.top = `${startY}px`;
 		this.tmpDrop.style.backgroundImage = fallingChipImage;
 
-		// Change drop options colors and load new evaluations
-		this.setDropOptionColors();
-		this.setEvaluations();
+		// Change drop option colors and load new evaluations
+		this.displayExternalInformation();
 
 		// Calculate the fall
 		const animationDuration = (this.gameState.getHeightFromTop(colIndex) +  1) * this.millisecPerCell;
@@ -109,7 +118,7 @@ export class VisualGame {
 		const cellIndex = this.gameState.back();
 		if (cellIndex !== undefined) {
 			this.cells[cellIndex].style.backgroundImage = null;
-			this.setDropOptionColors();
+			this.displayExternalInformation();
 		}
 	}
 	clear() {
@@ -118,14 +127,43 @@ export class VisualGame {
 		for (const cellIndex of cellIndicies) {
 			this.cells[cellIndex].style.backgroundImage = null;
 		}
-		this.setDropOptionColors();
+		this.displayExternalInformation();
 	}
 
-	// TODO: Load new evaluations
-	// Move this method to separate file
-	setEvaluations() {
-		for (const option of this.dropOptions) {
-			option.innerHTML = "0";
+	getRelativeEval(totalMoves, absoluteEval) {
+		// Converts from "Red / Yellow Move Number" to "Mate In" notation
+		if (absoluteEval > 0) {
+			return absoluteEval - Math.ceil(totalMoves / 2);
+		}
+		if (absoluteEval < 0) {
+			return absoluteEval + Math.floor(totalMoves / 2);
+		}
+		return 0;
+	}
+	getBoxMessage(totalMoves, absoluteEval) {
+		if (absoluteEval == 0) {
+			return this.gameState.moveCount() == this.totalCells ? GAME_IS_DRAW : GAME_WILL_DRAW;
+		}
+
+		const winningPlayerIndex = absoluteEval > 0 ? 0 : 1;
+		const relativeEval = this.getRelativeEval(totalMoves, absoluteEval);
+		return this.gameState.gameIsWon() ? victoryMessage(winningPlayerIndex) : 
+			evaluationMessage(winningPlayerIndex, relativeEval);
+	}
+	
+	displayExternalInformation() {
+		const totalMoves = this.gameState.moveCount();
+		const evaluation = this.gameState.getCurrentEval();
+		this.evaluationBox.innerHTML = this.getBoxMessage(totalMoves, evaluation);
+
+		for (const [colIndex, option] of Array.from(this.dropOptions).entries()) {
+			option.style.backgroundImage = this.getPlayerChip();
+
+			const displayChildEval = (evaluation) => {
+				option.innerHTML = this.getRelativeEval(totalMoves, evaluation);
+			}
+
+			this.gameState.handleChildEval(colIndex, displayChildEval);
 		}
 	}
 }
