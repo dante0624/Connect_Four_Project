@@ -58,8 +58,12 @@ public class SolveHandler implements HttpHandler {
 		}
 
 		Server.writeResponse(httpExchange, String.valueOf(evaluation));
-		System.out.println("SolveHandler solved " + moves);
-		System.out.println("SolveHandler sent an evaluation of " + evaluation);
+
+		if (moves.isEmpty()) {
+			moves = "<Starting Position>";
+		}
+		System.out.print("SolveHandler solved " + moves);
+		System.out.println(" sent an evaluation of " + evaluation);
 	}
 
 	public SolveHandler() throws IOException, ClassNotFoundException {
