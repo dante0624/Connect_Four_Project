@@ -50,8 +50,6 @@ export class VisualGame {
 		this.gameState = new GameState(width, height, gameReadyCallback);
 		this.animationState = new AnimationState();
 		this.millisecPerCell = MAX_ANIMATION_TIME_MS / height;
-
-		this.totalCells = width * height;
 	}
 
 	getPlayerIndex() {
@@ -142,7 +140,7 @@ export class VisualGame {
 	}
 	getBoxMessage(totalMoves, absoluteEval) {
 		if (absoluteEval == 0) {
-			return this.gameState.moveCount() == this.totalCells ? GAME_IS_DRAW : GAME_WILL_DRAW;
+			return this.gameState.gameIsDrawn() ? GAME_IS_DRAW : GAME_WILL_DRAW;
 		}
 
 		const winningPlayerIndex = absoluteEval > 0 ? 0 : 1;

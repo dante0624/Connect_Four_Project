@@ -33,6 +33,9 @@ export class GameState {
 		const winningMoveNumber = evaluation > 0 ? evaluation * 2 - 1 : evaluation * -2;
 		return this.moveCount() == winningMoveNumber
 	}
+	gameIsDrawn() {
+		return this.getCurrentEval() == 0 && this.moveCount() == this.width * this.height;
+	}
 	canPlay(colIndex) {
 		/* Note the 3 ways a column cannot be played:
 			1. The column is full
