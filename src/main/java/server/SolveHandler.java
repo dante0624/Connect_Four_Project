@@ -47,7 +47,7 @@ public class SolveHandler implements HttpHandler {
 		int evaluation = mixedSolve(position);
 
 		if (position.movesPlayed % 2 == 1) {
-			evaluation = 0 - evaluation; // Now it is absolute, ie always based on RED's pov
+			evaluation = 0 - evaluation; // Now it is absolute, ie always based on Player One's pov
 		}
 		
 		if (evaluation > 0) {
