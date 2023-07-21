@@ -29,7 +29,7 @@ p {
 	text-align: left;
 	text-indent: 2em;
 	margin: 0px;
-	padding: 0.6em;
+	padding: 0.3em;
 	padding-top: 0;
 }
 main {
@@ -49,6 +49,7 @@ main {
 	border: 1px solid;
 	border-radius: 30px;
 	background-color: hsla(0, 0%, 90%, 0.7);
+	padding: 5px;
 	width: 100%;
 	box-shadow: 5px 10px 20px rgba(0,0,0,0.19), 2px 6px 6px rgba(0,0,0,0.23);
 }
