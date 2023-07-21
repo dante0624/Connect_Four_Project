@@ -1,7 +1,7 @@
 const SERVER_PATH = "/solve/";
 
 export class EvalTree {
-	constructor(width, gameReadyCallback) {
+	constructor(width, treeIniailizedCallback) {
 		this.width = width;
 
 		fetch(SERVER_PATH)
@@ -10,7 +10,7 @@ export class EvalTree {
 				const evaluation = parseInt(text);
 				this.root = this.createNode(evaluation);
 				this.current = this.root;
-				gameReadyCallback();
+				treeIniailizedCallback();
 			});
 	}
 
@@ -44,7 +44,7 @@ export class EvalTree {
 		return this.current.children[colIndex].eval;
 	}
 	
-	fetchChildEval(moveHistory, colIndex, callback) {
+	fetchChildEval(moveHistory, colIndex, childReadyCallback) {
 		/* Sets a child node equal to a new node, whose evaulation is fetched from the server
 		moveHistory is an int[] of prior moves, and should be provided by the caller
 		colIndex specify which child is to be fetched and set
@@ -54,7 +54,7 @@ export class EvalTree {
 			.then(text => {
 				const evaluation = parseInt(text);
 				this.current.children[colIndex] = this.createNode(evaluation, this.current);
-				callback(evaluation);
+				childReadyCallback();
 			});
 	}
 }

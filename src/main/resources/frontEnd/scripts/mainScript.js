@@ -19,17 +19,14 @@ document.addEventListener('DOMContentLoaded', () => {
 	const width = dropOptions.length;
 	const height = cells.length / width;
 
-	const visualGame = new VisualGame(width, height, dropOptions, tmpDrop, cells, evalBox, () => {
-
-		document.getElementById("back-button").addEventListener("click", () => {visualGame.back();}); 
-		document.getElementById("clear-button").addEventListener("click", () => {visualGame.clear();}); 
-		for (const [colIndex, dropButton] of Array.from(dropButtons).entries()) {
-			dropButton.addEventListener("click", () => { visualGame.playCol(colIndex); });
-			dropButton.addEventListener("mouseover", () => { textFocus(colIndex); });
-			dropButton.addEventListener("mouseout", () => { textRemoveFocus(colIndex); });
-		}
-
-		visualGame.displayExternalInformation();
-	});
+	const visualGame = new VisualGame(width, height, dropOptions, tmpDrop, cells, evalBox);
+	
+	document.getElementById("back-button").addEventListener("click", () => {visualGame.back();}); 
+	document.getElementById("clear-button").addEventListener("click", () => {visualGame.clear();}); 
+	for (const [colIndex, dropButton] of Array.from(dropButtons).entries()) {
+		dropButton.addEventListener("click", () => { visualGame.playCol(colIndex); });
+		dropButton.addEventListener("mouseover", () => { textFocus(colIndex); });
+		dropButton.addEventListener("mouseout", () => { textRemoveFocus(colIndex); });
+	}
 });
 

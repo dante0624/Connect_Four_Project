@@ -41,13 +41,19 @@ class AnimationState {
 }
 
 export class VisualGame {
-	constructor(width, height, dropOptions, tmpDrop, cells, evalBox, gameReadyCallback) {
+	constructor(width, height, dropOptions, tmpDrop, cells, evalBox) {
 		this.dropOptions = dropOptions;
 		this.tmpDrop = tmpDrop;
 		this.cells = cells;
 		this.evaluationBox = evalBox;
 
-		this.gameState = new GameState(width, height, gameReadyCallback);
+		this.gameState = new GameState(
+			width,
+			height,
+			() => { this.displayCurrentStateInfo(); },
+			() => { this.displayChildrenInfo(); }
+		);
+			
 		this.animationState = new AnimationState();
 		this.millisecPerCell = MAX_ANIMATION_TIME_MS / height;
 	}
@@ -60,12 +66,7 @@ export class VisualGame {
 	}
 
 	playCol(colIndex) {
-		// Get this before we update game state, as that effectively flips colors
-		const fallingChipImage = this.getPlayerChip();
-
-		// Update the game state and check move validity
-		const cellIndex = this.gameState.playCol(colIndex);
-		if (cellIndex === undefined) {
+		if (!this.gameState.readyToPlay(colIndex)) {
 			return;
 		}
 
@@ -77,6 +78,9 @@ export class VisualGame {
 			option.innerHTML = "";
 		}
 
+		// Get this before we update game state, as that effectively flips colors
+		const fallingChipImage = this.getPlayerChip();
+
 		// Make tmp chip appear over the correct column
 		const startX = this.dropOptions[colIndex].offsetLeft;
 		const startY = this.dropOptions[colIndex].offsetTop;
@@ -84,8 +88,11 @@ export class VisualGame {
 		this.tmpDrop.style.top = `${startY}px`;
 		this.tmpDrop.style.backgroundImage = fallingChipImage;
 
-		// Change drop option colors and load new evaluations
-		this.displayExternalInformation();
+		// Update the game state and issue callback for the children evals
+		const cellIndex = this.gameState.playCol(colIndex);
+
+		// Flip the colors and display the current state eval
+		this.displayCurrentStateInfo();
 
 		// Calculate the fall
 		const animationDuration = (this.gameState.getHeightFromTop(colIndex) +  1) * this.millisecPerCell;
@@ -116,7 +123,7 @@ export class VisualGame {
 		const cellIndex = this.gameState.back();
 		if (cellIndex !== undefined) {
 			this.cells[cellIndex].style.backgroundImage = null;
-			this.displayExternalInformation();
+			this.displayExternalInfo();
 		}
 	}
 	clear() {
@@ -125,7 +132,7 @@ export class VisualGame {
 		for (const cellIndex of cellIndicies) {
 			this.cells[cellIndex].style.backgroundImage = null;
 		}
-		this.displayExternalInformation();
+		this.displayExternalInfo();
 	}
 
 	getRelativeEval(totalMoves, absoluteEval) {
@@ -144,25 +151,31 @@ export class VisualGame {
 		}
 
 		const winningPlayerIndex = absoluteEval > 0 ? 0 : 1;
-		const relativeEval = this.getRelativeEval(totalMoves, absoluteEval);
+		const movesUntilWin = Math.abs(this.getRelativeEval(totalMoves, absoluteEval));
 		return this.gameState.gameIsWon() ? victoryMessage(winningPlayerIndex) : 
-			evaluationMessage(winningPlayerIndex, relativeEval);
+			evaluationMessage(winningPlayerIndex, movesUntilWin);
 	}
-	
-	displayExternalInformation() {
+	displayCurrentStateInfo() {
 		const totalMoves = this.gameState.moveCount();
 		const evaluation = this.gameState.getCurrentEval();
 		this.evaluationBox.innerHTML = this.getBoxMessage(totalMoves, evaluation);
-
-		for (const [colIndex, option] of Array.from(this.dropOptions).entries()) {
+		for (const option of this.dropOptions) {
 			option.style.backgroundImage = this.getPlayerChip();
-
-			const displayChildEval = (evaluation) => {
-				option.innerHTML = this.getRelativeEval(totalMoves, evaluation);
-			}
-
-			this.gameState.handleChildEval(colIndex, displayChildEval);
 		}
+	}
+	displayChildrenInfo() {
+		const totalMoves = this.gameState.moveCount();
+		for (const [colIndex, option] of Array.from(this.dropOptions).entries()) {
+			const absoluteEval = this.gameState.getChildEval(colIndex);
+			if (absoluteEval === undefined) {
+				continue;
+			}
+			option.innerHTML = this.getRelativeEval(totalMoves, absoluteEval);
+		}
+	}
+	displayExternalInfo() {
+		this.displayCurrentStateInfo();
+		this.displayChildrenInfo();
 	}
 }
 
