@@ -2,8 +2,8 @@ import { GameState } from "./GameState.js";
 
 const MAX_ANIMATION_TIME_MS = 650;
 const REFRESH_RATE_MILLISEC = 33;
-const PLAYER_CHIPS = ["url(redChip.svg)",  "url(yellowChip.svg)"];
-const PLAYER_COLORS = ["Red", "Yellow"];
+const PLAYER_CHIPS = ["url(yellowChip.svg)",  "url(redChip.svg)"];
+const PLAYER_COLORS = ["Yellow", "Red"];
 const GAME_IS_DRAW = "The Game is a Draw";
 const GAME_WILL_DRAW = "Both Players Can Force a Draw";
 function evaluationMessage(playerIndex, movesUntilWin) {
@@ -136,7 +136,7 @@ export class VisualGame {
 	}
 
 	getRelativeEval(totalMoves, absoluteEval) {
-		// Converts from "Red / Yellow Move Number" to "Mate In" notation
+		// Converts from "Yellow / Red Move Number" to "Mate In" notation
 		if (absoluteEval > 0) {
 			return absoluteEval - Math.ceil(totalMoves / 2);
 		}
