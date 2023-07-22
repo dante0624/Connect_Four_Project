@@ -50,6 +50,7 @@ public class Server {
 		HttpServer server = HttpServer.create(new InetSocketAddress(PORT), 0);
 		server.createContext("/", new RootHandler());
 		server.createContext("/solve/", new SolveHandler());
+		server.createContext("/alignment/", new AlignmentHandler());
 		server.setExecutor(null);
 		server.start();
 		System.out.println("The server is running");
