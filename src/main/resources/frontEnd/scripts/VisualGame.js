@@ -56,6 +56,8 @@ export class VisualGame {
 			
 		this.animationState = new AnimationState();
 		this.millisecPerCell = MAX_ANIMATION_TIME_MS / height;
+
+		this.alignmentCellIndicies = [];
 	}
 
 	getPlayerIndex() {
@@ -115,20 +117,23 @@ export class VisualGame {
 		const afterAnimation = () => {
 			this.tmpDrop.style.backgroundImage = null;
 			endSquare.style.backgroundImage = fallingChipImage;
+			this.safeDisplayAlignments();
 		}
 		this.animationState.startAnimation(animationFunction, afterAnimation);
 	}
 	back() {
-		this.animationState.endAnimation();
 		const cellIndex = this.gameState.back();
+		this.animationState.endAnimation();
+		this.clearAlignments();
 		if (cellIndex !== undefined) {
 			this.cells[cellIndex].style.backgroundImage = null;
-			this.displayExternalInfo();
 		}
+		this.displayExternalInfo();
 	}
 	clear() {
-		this.animationState.endAnimation();
 		const cellIndicies = this.gameState.clear();
+		this.animationState.endAnimation();
+		this.clearAlignments();
 		for (const cellIndex of cellIndicies) {
 			this.cells[cellIndex].style.backgroundImage = null;
 		}
@@ -176,6 +181,35 @@ export class VisualGame {
 	displayExternalInfo() {
 		this.displayCurrentStateInfo();
 		this.displayChildrenInfo();
+	}
+	safeDisplayAlignments() {
+		/* First check if that the game is won before doing anything
+		Then issue a callback to display X's over all cells, after we fetch those cell's indicies
+		Built into the callback is a check that that game is still won
+		This is needed, as a race condition could happen where we issue the callback while the game is won,
+			But then the back button is pressed so the game is no longer won. But then the callback hits, 
+			which could result in display X's over a non-winning position. */
+		if (!this.gameState.gameIsWon()) {
+			return;
+		}
+
+		this.gameState.fetchAlignment((cellIndicies) => {
+			if (!this.gameState.gameIsWon()) {
+				return;
+			}
+
+			this.alignmentCellIndicies = [];
+			for (const cellIndex of cellIndicies) {
+				this.cells[cellIndex].innerHTML = "X";
+				this.alignmentCellIndicies.push(cellIndex);
+			}
+		});	
+	}
+	clearAlignments() {
+		for (const cellIndex of this.alignmentCellIndicies) {
+			this.cells[cellIndex].innerHTML = "";
+		}
+		this.alignmentCellIndicies = [];
 	}
 }
 

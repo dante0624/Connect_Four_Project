@@ -1,5 +1,7 @@
 import { EvalTree } from "./EvalTree.js";
 
+const SERVER_PATH = "/alignment/";
+
 // Helper class to track which children evaluations are fully loaded
 // Once all are fully loaded, it fires a single, fixed callback on what to do now
 class ChildrenState {
@@ -74,6 +76,11 @@ export class GameState {
 				this.evalTree.fetchChildEval(this.moveHistory, colIndex, setReady);
 			}
 		}
+	}
+	fetchAlignment(callback) {
+		fetch(SERVER_PATH + this.moveHistory.join(''))
+			.then(response => response.text())
+			.then(text => { callback(text.split(',').map((x) => parseInt(x))); });
 	}
 	gameIsWon() {
 		const evaluation = this.getCurrentEval();
