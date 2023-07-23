@@ -3,6 +3,7 @@ import { GameState } from "./GameState.js";
 const MAX_ANIMATION_TIME_MS = 650;
 const REFRESH_RATE_MILLISEC = 33;
 const PLAYER_CHIPS = ["url(yellowChip.svg)",  "url(redChip.svg)"];
+const PLAYER_PULSES = ["url(yellowPulse.svg)", "url(redPulse.svg)"];
 const PLAYER_COLORS = ["Yellow", "Red"];
 const GAME_IS_DRAW = "The Game is a Draw";
 const GAME_WILL_DRAW = "Both Players Can Force a Draw";
@@ -41,8 +42,9 @@ class AnimationState {
 }
 
 export class VisualGame {
-	constructor(width, height, dropOptions, tmpDrop, cells, evalBox) {
+	constructor(width, height, dropOptions, pulseOptions, tmpDrop, cells, evalBox) {
 		this.dropOptions = dropOptions;
+		this.pulseOptions = pulseOptions;
 		this.tmpDrop = tmpDrop;
 		this.cells = cells;
 		this.evaluationBox = evalBox;
@@ -66,6 +68,18 @@ export class VisualGame {
 	getPlayerChip() {
 		return PLAYER_CHIPS[this.getPlayerIndex()];
 	}
+	getPlayerPulse() {
+		return PLAYER_PULSES[this.getPlayerIndex()];
+	}
+	setChildrenVisualsOff() {
+		for (const dropOption of this.dropOptions) {
+			dropOption.innerHTML = "";
+		}
+		for (const pulseOption of this.pulseOptions) {
+			pulseOption.style.backgroundImage = null;
+		}
+
+	}
 
 	playCol(colIndex) {
 		if (!this.gameState.readyToPlay(colIndex)) {
@@ -75,10 +89,8 @@ export class VisualGame {
 		// Cancel jump to finishing prior animation if it is still going
 		this.animationState.endAnimation();
 
-		// Turn off drop evaluations
-		for (const option of this.dropOptions) {
-			option.innerHTML = "";
-		}
+		// Turn off drop evaluations and pulses
+		this.setChildrenVisualsOff();
 
 		// Get this before we update game state, as that effectively flips colors
 		const fallingChipImage = this.getPlayerChip();
@@ -169,13 +181,37 @@ export class VisualGame {
 		}
 	}
 	displayChildrenInfo() {
+		// Kills the prior visuals if they exist
+		this.setChildrenVisualsOff();
+
 		const totalMoves = this.gameState.moveCount();
-		for (const [colIndex, option] of Array.from(this.dropOptions).entries()) {
-			const absoluteEval = this.gameState.getChildEval(colIndex);
-			if (absoluteEval === undefined) {
+		const positionEval = this.gameState.getCurrentEval();
+		let hidePulses = true;
+
+		/* Display the pulse if Child's Absolute Eval == Current Position's Absolute Eval
+		But, we never want to pulse every child (if all equal, they all likely lose equally)
+		First loop through should verify that not all children evals == current position eval
+		We also use the first loop to set the drop option evaluations */
+		for (const [colIndex, dropOption] of Array.from(this.dropOptions).entries()) {
+			const childEval = this.gameState.getChildEval(colIndex);
+			if (childEval === undefined) {
 				continue;
 			}
-			option.innerHTML = this.getRelativeEval(totalMoves, absoluteEval);
+			if (childEval != positionEval) {
+				hidePulses = false;
+			}
+			dropOption.innerHTML = this.getRelativeEval(totalMoves, childEval);
+		}
+
+		if (hidePulses) {
+			return;
+		}
+
+		const playerPulse = this.getPlayerPulse();
+		for (const [colIndex, pulseOption] of Array.from(this.pulseOptions).entries()) {
+			if (this.gameState.getChildEval(colIndex) == positionEval) {
+				pulseOption.style.backgroundImage = playerPulse;
+			}
 		}
 	}
 	displayExternalInfo() {
