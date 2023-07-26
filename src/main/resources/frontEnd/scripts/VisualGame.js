@@ -2,7 +2,7 @@ import { GameState } from "./GameState.js";
 
 const MAX_ANIMATION_TIME_MS = 650;
 const REFRESH_RATE_MILLISEC = 33;
-const PLAYER_CHIPS = ["url(yellowChip.svg)",  "url(redChip.svg)"];
+const PLAYER_CHIPS = ["url(images/yellowChip.svg)",  "url(images/redChip.svg)"];
 const PLAYER_PULSES = ["pulse-yellow", "pulse-red"];
 const PLAYER_COLORS = ["Yellow", "Red"];
 const GAME_IS_DRAW = "The Game is a Draw";

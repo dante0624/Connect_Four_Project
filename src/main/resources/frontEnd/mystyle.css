@@ -129,7 +129,7 @@ main {
 .grid-cell {
 	width: 5.2vw;
 	height: 5.2vw;
-	background-image: url(gridFrame.svg);
+	background-image: url(images/gridFrame.svg);
 	border-style: solid;
 	border-color: black;
 	border-width: 1px;
@@ -233,18 +233,18 @@ footer {
 
 /* Javascript adds these to the drop-pulse div objects as needed */
 .pulse-yellow {
-	background-image: url(yellowPulse.svg);
+	background-image: url(images/yellowPulse.svg);
 }
 .pulse-red {
-	background-image: url(redPulse.svg);
+	background-image: url(images/redPulse.svg);
 }
 
 /* Should apply only to mobile phones */
 @media (hover: none) {
 	.pulse-yellow {
-		background-image: url(yellowMobilePulse.svg);
+		background-image: url(images/yellowMobilePulse.svg);
 	}
 	.pulse-red {
-		background-image: url(redMobilePulse.svg);
+		background-image: url(images/redMobilePulse.svg);
 	}
 }
