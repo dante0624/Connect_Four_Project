@@ -8,7 +8,9 @@ const PLAYER_COLORS = ["Yellow", "Red"];
 const GAME_IS_DRAW = "The Game is a Draw";
 const GAME_WILL_DRAW = "Both Players Can Force a Draw";
 function evaluationMessage(playerIndex, movesUntilWin) {
-	return `${PLAYER_COLORS[playerIndex]} Can Force a Win in ${movesUntilWin} Moves`;
+	return movesUntilWin == 1 ?
+		`${PLAYER_COLORS[playerIndex]} Can Win in ${movesUntilWin} Move` :
+		`${PLAYER_COLORS[playerIndex]} Can Force a Win in ${movesUntilWin} Moves`;
 }
 function victoryMessage(playerIndex) {
 	return `${PLAYER_COLORS[playerIndex]} Has Won`;
