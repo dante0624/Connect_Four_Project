@@ -8,23 +8,23 @@ width="100%" height="100%"  viewBox="0 0 100 100">
 		@keyframes pulseOutIn {
 			0% {
 				transform: scale(1);
-				opacity: 1;
+				opacity: 0.75;
 			}
 
 			50% {
-				transform: scale(1.1);
-				opacity: 0.75;
+				transform: scale(0.9);
+				opacity: 1;
 			}
 
 			100% {
 				transform: scale(1);
-				opacity: 1;
+				opacity: 0.75;
 			}
 		}
 	</style>
 
 	<g transform="translate(49,50)">
-		<circle id="pulse" cx="0" cy="0" r="46" fill="#db210e"></circle>
-		<circle id="pulse" cx="0" cy="0" r="44" fill="#ac1a0a"></circle>
+		<circle id="pulse" cx="0" cy="0" r="50" fill="#db210e"></circle>
+		<circle id="pulse" cx="0" cy="0" r="47" fill="#ac1a0a"></circle>
 	</g>
 </svg>

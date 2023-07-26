@@ -3,7 +3,7 @@ import { GameState } from "./GameState.js";
 const MAX_ANIMATION_TIME_MS = 650;
 const REFRESH_RATE_MILLISEC = 33;
 const PLAYER_CHIPS = ["url(yellowChip.svg)",  "url(redChip.svg)"];
-const PLAYER_PULSES = ["url(yellowPulse.svg)", "url(redPulse.svg)"];
+const PLAYER_PULSES = ["pulse-yellow", "pulse-red"];
 const PLAYER_COLORS = ["Yellow", "Red"];
 const GAME_IS_DRAW = "The Game is a Draw";
 const GAME_WILL_DRAW = "Both Players Can Force a Draw";
@@ -78,7 +78,8 @@ export class VisualGame {
 			dropOption.innerHTML = "";
 		}
 		for (const pulseOption of this.pulseOptions) {
-			pulseOption.style.backgroundImage = null;
+			pulseOption.classList.remove(PLAYER_PULSES[0]);
+			pulseOption.classList.remove(PLAYER_PULSES[1]);
 		}
 
 	}
@@ -212,7 +213,7 @@ export class VisualGame {
 		const playerPulse = this.getPlayerPulse();
 		for (const [colIndex, pulseOption] of Array.from(this.pulseOptions).entries()) {
 			if (this.gameState.getChildEval(colIndex) == positionEval) {
-				pulseOption.style.backgroundImage = playerPulse;
+				pulseOption.classList.add(playerPulse);
 			}
 		}
 	}
