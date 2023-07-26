@@ -22,3 +22,6 @@
 *gradlew*
 *gradle/
 
+# Unzipped opening book
+src/main/resources/openingBook/*
+

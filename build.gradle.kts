@@ -43,3 +43,24 @@ tasks.processResources {
 tasks.processTestResources {
 	isEnabled = false
 }
+
+// Compresses all openingBook files into one openingBook.zip
+// Need to call this manually as gradle zip
+tasks.register<Zip>("zip") {
+    archiveFileName.set("openingBook.zip")
+    destinationDirectory.set(layout.projectDirectory.dir("src/main/resources/"))
+
+    from(layout.projectDirectory.dir("src/main/resources/openingBook"))
+}
+
+// Unzips all the Opening Book
+tasks.register<Copy>("unzip") {
+	from(zipTree("src/main/resources/openingBook.zip"))
+    into(layout.projectDirectory.dir("src/main/resources/openingBook"))
+}
+
+// Now gradle build automatically calls gradle unzip
+tasks.build {
+	dependsOn("unzip")
+}
+
