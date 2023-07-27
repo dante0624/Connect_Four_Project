@@ -37,7 +37,7 @@ main {
 	flex-direction: row;
 	align-items: center;
 	justify-content: space-around;
-	padding-bottom: 4vw;
+	padding-bottom: 3vw;
 }
 .side-content-wrapper {
 	display: flex;
@@ -172,7 +172,7 @@ footer {
 	width: 100%;
 	position: absolute;
 	bottom: 0;
-	height: 4vw;	
+	height: 3vw;	
 }
 .self-plug {
 	margin: auto;
