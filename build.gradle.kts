@@ -59,8 +59,10 @@ tasks.register<Copy>("unzip") {
     into(layout.projectDirectory.dir("src/main/resources/openingBook"))
 }
 
-// Now gradle build automatically calls gradle unzip
+// Now gradle build and test automatically call gradle unzip
 tasks.build {
 	dependsOn("unzip")
 }
-
+tasks.named<Test>("test") {
+	dependsOn("unzip")
+}
